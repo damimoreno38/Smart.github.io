@@ -16,16 +16,16 @@
 
         <form action="<?= base_url('/login/auth') ?>" method="post">
             <div class="mb-3">
-                <label for="nombre" class="form-label">Nombre Completo</label>
-                <input type="text" name="nombre" class="form-control" id="nombre" required placeholder="Ingresa tu nombre completo">
+                <label for="nombre" class="form-label">Nombre de usuario</label>
+                <input type="text" name="nombre" class="form-control" id="nombre" required placeholder="Ingresa tu nombre de usuario">
             </div>
             <div class="mb-3">
-                <label for="email" class="form-label">Correo electrónico</label>
-                <input type="email" name="email" class="form-control" id="email" required placeholder="usuario@ejemplo.com">
+                <label for="correo" class="form-label">Correo electrónico</label>
+                <input type="email" name="correo" class="form-control" id="correo" required placeholder="usuario@ejemplo.com">
             </div>
             <div class="mb-3">
                 <label for="password" class="form-label">Contraseña</label>
-                <input type="password" name="password" class="form-control" id="password" required>
+                <input type="password" name="password" class="form-control" id="password" required placeholder="Ingresa tu contraseña">
             </div>
             <button type="submit" class="btn btn-primary w-100">Ingresar</button>
         </form>

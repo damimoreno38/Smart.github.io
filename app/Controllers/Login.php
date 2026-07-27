@@ -2,10 +2,10 @@
 
 namespace App\Controllers;
 
-use CodeIgniter\Controller;
+use App\Controllers\BaseController;
 use App\Models\UsuarioModel;
 
-class Login extends Controller
+class Login extends BaseController
 {
     public function index()
     {
@@ -16,25 +16,28 @@ class Login extends Controller
     public function auth()
     {
         $session = session();
-        $model = new UsuarioModel();
+        $model   = new UsuarioModel();
         
+        // Se reciben los tres campos del formulario
         $nombre   = $this->request->getVar('nombre');
-        $email    = $this->request->getVar('email');
+        $correo   = $this->request->getVar('correo');
         $password = $this->request->getVar('password');
         
-        // Busca al usuario por su correo electrónico
-        $data = $model->where('email', $email)->first();
+        // Verifica que coincida el Nombre_usuario y el Correo registrados
+        $data = $model->where('Correo', $correo)
+                      ->where('Nombre_usuario', $nombre)
+                      ->first();
         
         if ($data) {
-            $pass = $data['password'];
+            $pass = $data['Contraseña'];
             
             // Verifica la contraseña
             if (password_verify($password, $pass) || $password === $pass) {
                 $ses_data = [
-                    'id'        => $data['id'],
-                    'nombre'    => $data['nombre'],
-                    'email'     => $data['email'],
-                    'logged_in' => TRUE
+                    'id'        => $data['ID_usuario'],
+                    'nombre'    => $data['Nombre_usuario'],
+                    'correo'    => $data['Correo'],
+                    'logged_in' => true
                 ];
                 $session->set($ses_data);
                 return redirect()->to('/dashboard');
@@ -43,7 +46,7 @@ class Login extends Controller
                 return redirect()->to('/login');
             }
         } else {
-            $session->setFlashdata('msg', 'El correo no se encuentra registrado.');
+            $session->setFlashdata('msg', 'Los datos ingresados no se encuentran registrados.');
             return redirect()->to('/login');
         }
     }
