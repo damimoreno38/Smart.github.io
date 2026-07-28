@@ -18,12 +18,10 @@ class Login extends BaseController
         $session = session();
         $model   = new UsuarioModel();
         
-        // Se reciben los tres campos del formulario
         $nombre   = $this->request->getVar('nombre');
         $correo   = $this->request->getVar('correo');
         $password = $this->request->getVar('password');
         
-        // Verifica que coincida el Nombre_usuario y el Correo registrados
         $data = $model->where('Correo', $correo)
                       ->where('Nombre_usuario', $nombre)
                       ->first();
@@ -40,7 +38,9 @@ class Login extends BaseController
                     'logged_in' => true
                 ];
                 $session->set($ses_data);
-                return redirect()->to('/dashboard');
+                
+                // REDIRECCIÓN CORREGIDA: nos manda al módulo de usuarios
+                return redirect()->to('/usuarios');
             } else {
                 $session->setFlashdata('msg', 'Contraseña incorrecta.');
                 return redirect()->to('/login');
