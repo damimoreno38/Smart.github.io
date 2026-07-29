@@ -11,7 +11,6 @@ class UsuarioModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
 
-    // Se incluyen 'Correo', 'Nombre_usuario' y 'Contraseña' de tu esquema
     protected $allowedFields    = ['Nombre_usuario', 'Contraseña', 'Correo', 'PUESTO_ID_puesto', 'ROLES_ID_roles'];
 
     protected $useTimestamps    = false;
