@@ -62,6 +62,21 @@ class Session extends BaseConfig
 
     /**
      * --------------------------------------------------------------------------
+     * Constructor
+     * --------------------------------------------------------------------------
+     *
+     * Asigna dinámicamente la ruta temporal del sistema operativo para evitar 
+     * problemas de permisos con la carpeta writable en OneDrive/Windows.
+     */
+    public function __construct()
+    {
+        parent::__construct();
+
+        $this->savePath = sys_get_temp_dir();
+    }
+
+    /**
+     * --------------------------------------------------------------------------
      * Session Match IP
      * --------------------------------------------------------------------------
      *
