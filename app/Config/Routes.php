@@ -13,3 +13,6 @@ $routes->get('/usuarios', 'Usuarios::index');
 $routes->get('/usuarios/crear', 'Usuarios::crear');
 $routes->post('/usuarios/guardar', 'Usuarios::guardar');
 $routes->get('/usuarios/eliminar/(:num)', 'Usuarios::eliminar/$1');
+
+// ruta del panel inicila 
+$routes->get('/panelinicial', 'PanelInicial::index');
