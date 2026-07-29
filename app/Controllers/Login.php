@@ -39,7 +39,7 @@ class Login extends BaseController
                 ];
                 $session->set($ses_data);
                 
-                // REDIRECCIÓN CORREGIDA: nos manda al módulo de usuarios
+                
                 return redirect()->to('/usuarios');
             } else {
                 $session->setFlashdata('msg', 'Contraseña incorrecta.');
