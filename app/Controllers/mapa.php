@@ -8,6 +8,12 @@ class Mapa extends BaseController
     {
         return view('mapa');
     }
+    
+    public function errorMapa()
+   {
+    
+    return view('errors/error_mapa');
+   }
 
     public function ubicacion()
     {
