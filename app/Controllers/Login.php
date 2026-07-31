@@ -9,44 +9,39 @@ class Login extends BaseController
 {
     public function index()
     {
-        helper(['form']);
+        helper(['form', 'url']);
         return view('login');
     }
 
     public function auth()
     {
-        $session = session();
-        $model   = new UsuarioModel();
+        $session  = session();
+        $model    = new UsuarioModel();
         
-        // Se reciben los tres campos del formulario
-        $nombre   = $this->request->getVar('nombre');
-        $correo   = $this->request->getVar('correo');
-        $password = $this->request->getVar('password');
+        $curp     = strtoupper(trim($this->request->getPost('curp')));
+        $password = $this->request->getPost('password');
         
-        // Verifica que coincida el Nombre_usuario y el Correo registrados
-        $data = $model->where('Correo', $correo)
-                      ->where('Nombre_usuario', $nombre)
-                      ->first();
+        $data = $model->where('Curp', $curp)->first();
         
         if ($data) {
-            $pass = $data['Contraseña'];
+            $passBD = $data['Contraseña'];
             
-            // Verifica la contraseña
-            if (password_verify($password, $pass) || $password === $pass) {
+            if (password_verify($password, $passBD)) {
                 $ses_data = [
                     'id'        => $data['ID_usuario'],
-                    'nombre'    => $data['Nombre_usuario'],
-                    'correo'    => $data['Correo'],
+                    'curp'      => $data['curp'],
                     'logged_in' => true
                 ];
                 $session->set($ses_data);
+                
+               
                 return redirect()->to('/dashboard');
             } else {
                 $session->setFlashdata('msg', 'Contraseña incorrecta.');
                 return redirect()->to('/login');
             }
         } else {
-            $session->setFlashdata('msg', 'Los datos ingresados no se encuentran registrados.');
+            $session->setFlashdata('msg', 'La CURP ingresada no se encuentra registrada.');
             return redirect()->to('/login');
         }
     }

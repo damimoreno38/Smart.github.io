@@ -2,7 +2,6 @@
 
 namespace App\Controllers;
 
-use App\Controllers\BaseController;
 use App\Models\UsuarioModel;
 
 class Usuarios extends BaseController
@@ -17,7 +16,6 @@ class Usuarios extends BaseController
 
     public function crear()
     {
-        helper(['form']);
         return view('usuarios/crear');
     }
 
@@ -26,8 +24,7 @@ class Usuarios extends BaseController
         $model = new UsuarioModel();
 
         $data = [
-            'Nombre_usuario'   => $this->request->getPost('nombre_usuario'),
-            'Correo'           => $this->request->getPost('correo'),
+            'curp'             => strtoupper(trim($this->request->getPost('curp'))),
             'Contraseña'       => $this->request->getPost('password'),
             'PUESTO_ID_puesto' => $this->request->getPost('puesto_id'),
             'ROLES_ID_roles'   => $this->request->getPost('roles_id'),
@@ -36,15 +33,15 @@ class Usuarios extends BaseController
         $model->save($data);
         session()->setFlashdata('msg', 'Usuario registrado correctamente.');
 
-        return redirect()->to('/usuarios');
+        return redirect()->to('usuarios');
     }
 
     public function eliminar($id = null)
     {
         $model = new UsuarioModel();
         $model->delete($id);
+        session()->setFlashdata('msg', 'Usuario eliminado.');
 
-        session()->setFlashdata('msg', 'Usuario eliminado correctamente.');
-        return redirect()->to('/usuarios');
+        return redirect()->to('usuarios');
     }
 }
