@@ -13,9 +13,12 @@ class UsuarioModel extends Model
 
     protected $allowedFields    = [
         'curp', 
+        'email',
         'Contraseña', 
         'PUESTO_ID_puesto', 
-        'ROLES_ID_roles'
+        'ROLES_ID_roles',
+        'reset_token',          
+        'reset_expires_at',
     ];
 
     protected $useTimestamps    = false;

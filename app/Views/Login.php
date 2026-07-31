@@ -14,14 +14,21 @@
             <div class="alert alert-danger text-center"><?= session()->getFlashdata('msg') ?></div>
         <?php endif;?>
 
+        <?php if(session()->getFlashdata('success')):?>
+            <div class="alert alert-success text-center"><?= session()->getFlashdata('success') ?></div>
+        <?php endif;?>
+
         <form action="<?= base_url('/login/auth') ?>" method="post">
             <div class="mb-3">
                 <label for="curp" class="form-label font-weight-bold">CURP</label>
                 <input type="text" name="curp" class="form-control text-uppercase" id="curp" required placeholder="Ingresa tu CURP" maxlength="18">
             </div>
             <div class="mb-3">
-                <label for="password" class="form-label font-weight-bold">Contraseña</label>
-                <input type="password" name="password" class="form-control" id="password" required placeholder="Ingresa tu contraseña">
+                <div class="d-flex justify-content-between align-items-center">
+                    <label for="password" class="form-label font-weight-bold mb-0">Contraseña</label>
+                    <a href="<?= base_url('login/forgot-password') ?>" class="text-decoration-none small">¿Olvidaste tu contraseña?</a>
+                </div>
+                <input type="password" name="password" class="form-control mt-1" id="password" required placeholder="Ingresa tu contraseña">
             </div>
             
             <button type="submit" class="btn btn-primary w-100 mb-3">Ingresar</button>

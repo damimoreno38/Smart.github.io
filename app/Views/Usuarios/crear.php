@@ -12,17 +12,8 @@
             <h3 class="mb-4 text-center">Nuevo Usuario</h3>
             <form action="<?= base_url('/usuarios/guardar') ?>" method="post">
                 <div class="mb-3">
-<<<<<<< HEAD
                     <label class="form-label">CURP</label>
                     <input type="text" name="curp" class="form-control text-uppercase" maxlength="18" required placeholder="Ingresa la CURP">
-=======
-                    <label class="form-label">Nombre de Usuario</label>
-                    <input type="text" name="nombre_usuario" class="form-control" required placeholder="Ej: ana_moreno">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Correo Electrónico</label>
-                    <input type="email" name="correo" class="form-control" required placeholder="correo@ejemplo.com">
->>>>>>> 1f9686f8832d9a1eba68d1c5124c451138d9b421
                 </div>
                 <div class="mb-3">
                     <label class="form-label">Contraseña</label>
