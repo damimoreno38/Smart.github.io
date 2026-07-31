@@ -13,3 +13,8 @@ $routes->get('/usuarios', 'Usuarios::index');
 $routes->get('/usuarios/crear', 'Usuarios::crear');
 $routes->post('/usuarios/guardar', 'Usuarios::guardar');
 $routes->get('/usuarios/eliminar/(:num)', 'Usuarios::eliminar/$1');
+
+//ruta del apartado del mapa
+$routes->get('mapa', 'Mapa::index');
+//ruta de error de mapa 
+$routes->get('error-mapa', 'Mapa::errorMapa');
