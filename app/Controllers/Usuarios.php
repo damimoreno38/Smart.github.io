@@ -2,46 +2,54 @@
 
 namespace App\Controllers;
 
+use App\Controllers\BaseController;
 use App\Models\UsuarioModel;
 
-class Usuarios extends BaseController
+class Login extends BaseController
 {
     public function index()
     {
-        $model = new UsuarioModel();
-        $data['usuarios'] = $model->findAll();
-
-        return view('usuarios/index', $data);
+        helper(['form', 'url']);
+        return view('login');
     }
 
-    public function crear()
+    public function auth()
     {
-        return view('usuarios/crear');
+        $session  = session();
+        $model    = new UsuarioModel();
+        
+        $curp     = strtoupper(trim($this->request->getPost('curp')));
+        $password = $this->request->getPost('password');
+        
+        $data = $model->where('Curp', $curp)->first();
+        
+        if ($data) {
+            $passBD = $data['Contraseña'];
+            
+            if (password_verify($password, $passBD)) {
+                $ses_data = [
+                    'id'        => $data['ID_usuario'],
+                    'curp'      => $data['curp'],
+                    'logged_in' => true
+                ];
+                $session->set($ses_data);
+                
+               
+                return redirect()->to('/dashboard');
+            } else {
+                $session->setFlashdata('msg', 'Contraseña incorrecta.');
+                return redirect()->to('/login');
+            }
+        } else {
+            $session->setFlashdata('msg', 'La CURP ingresada no se encuentra registrada.');
+            return redirect()->to('/login');
+        }
     }
 
-    public function guardar()
+    public function logout()
     {
-        $model = new UsuarioModel();
-
-        $data = [
-            'curp'             => strtoupper(trim($this->request->getPost('curp'))),
-            'Contraseña'       => $this->request->getPost('password'),
-            'PUESTO_ID_puesto' => $this->request->getPost('puesto_id'),
-            'ROLES_ID_roles'   => $this->request->getPost('roles_id'),
-        ];
-
-        $model->save($data);
-        session()->setFlashdata('msg', 'Usuario registrado correctamente.');
-
-        return redirect()->to('usuarios');
-    }
-
-    public function eliminar($id = null)
-    {
-        $model = new UsuarioModel();
-        $model->delete($id);
-        session()->setFlashdata('msg', 'Usuario eliminado.');
-
-        return redirect()->to('usuarios');
+        $session = session();
+        $session->destroy();
+        return redirect()->to('/login');
     }
 }

@@ -14,6 +14,7 @@
                 <a href="<?= base_url('login') ?>" class="btn btn-outline-secondary me-2">Volver al Login</a>
                 <a href="<?= base_url('usuarios/crear') ?>" class="btn btn-success">+ Registrar Nuevo Usuario</a>
             </div>
+            <a href="<?= base_url('/usuarios/crear') ?>" class="btn btn-success">+ Registrar Nuevo Usuario</a>
         </div>
 
         <?php if(session()->getFlashdata('msg')):?>
@@ -24,9 +25,16 @@
             <thead class="table-dark">
                 <tr>
                     <th>ID</th>
+<<<<<<< HEAD
                     <th>CURP</th>
                     <th>ID Puesto</th>
                     <th>ID Rol</th>
+=======
+                    <th>Nombre de Usuario</th>
+                    <th>Correo</th>
+                    <th>Puesto ID</th>
+                    <th>Rol ID</th>
+>>>>>>> 1f9686f8832d9a1eba68d1c5124c451138d9b421
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -34,12 +42,22 @@
                 <?php if(!empty($usuarios) && is_array($usuarios)): ?>
                     <?php foreach($usuarios as $user): ?>
                         <tr>
+<<<<<<< HEAD
                             <td><?= $user['ID_usuario'] ?? '' ?></td>
                             <td><?= $user['curp'] ?? '' ?></td>
                             <td><?= $user['PUESTO_ID_puesto'] ?? '' ?></td>
                             <td><?= $user['ROLES_ID_roles'] ?? '' ?></td>
                             <td>
                                 <a href="<?= base_url('usuarios/eliminar/'.($user['ID_usuario'] ?? '')) ?>" 
+=======
+                            <td><?= $user['ID_usuario'] ?></td>
+                            <td><?= $user['Nombre_usuario'] ?></td>
+                            <td><?= $user['Correo'] ?></td>
+                            <td><?= $user['PUESTO_ID_puesto'] ?></td>
+                            <td><?= $user['ROLES_ID_roles'] ?></td>
+                            <td>
+                                <a href="<?= base_url('/usuarios/eliminar/'.$user['ID_usuario']) ?>" 
+>>>>>>> 1f9686f8832d9a1eba68d1c5124c451138d9b421
                                    class="btn btn-danger btn-sm" 
                                    onclick="return confirm('¿Deseas eliminar este usuario?')">
                                    Eliminar
@@ -49,7 +67,11 @@
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
+<<<<<<< HEAD
                         <td colspan="5" class="text-center">No hay usuarios registrados.</td>
+=======
+                        <td colspan="6" class="text-center">No hay usuarios registrados.</td>
+>>>>>>> 1f9686f8832d9a1eba68d1c5124c451138d9b421
                     </tr>
                 <?php endif; ?>
             </tbody>

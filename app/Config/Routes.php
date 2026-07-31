@@ -2,6 +2,7 @@
 
 use CodeIgniter\Router\RouteCollection;
 
+<<<<<<< HEAD
 /**
  * @var RouteCollection $routes
  */
@@ -24,3 +25,16 @@ $routes->group('usuarios', ['namespace' => 'App\Controllers'], static function (
     $routes->post('guardar', 'Usuarios::guardar');        // URL: /usuarios/guardar
     $routes->get('eliminar/(:num)', 'Usuarios::eliminar/$1'); // URL: /usuarios/eliminar/ID
 });
+=======
+/** @var RouteCollection $routes */
+$routes->get('/', 'Login::index');
+$routes->get('/login', 'Login::index');
+$routes->post('/login/auth', 'Login::auth');
+$routes->get('/logout', 'Login::logout');
+
+// Rutas de Usuarios
+$routes->get('/usuarios', 'Usuarios::index');
+$routes->get('/usuarios/crear', 'Usuarios::crear');
+$routes->post('/usuarios/guardar', 'Usuarios::guardar');
+$routes->get('/usuarios/eliminar/(:num)', 'Usuarios::eliminar/$1');
+>>>>>>> 1f9686f8832d9a1eba68d1c5124c451138d9b421
