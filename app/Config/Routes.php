@@ -18,10 +18,9 @@ $routes->post('login/send-reset-link', 'Login::sendResetLink');
 $routes->get('login/reset-password/(:alphanumeric)', 'Login::resetPassword/$1');
 $routes->post('login/update-password', 'Login::updatePassword');
 
-// Dashboard
-$routes->get('dashboard', function() {
-    return '<h1>¡Bienvenido! Esta es la pantalla principal tras iniciar sesión.</h1><p><a href="'.base_url('usuarios').'">Gestión de Usuarios</a> | <a href="'.base_url('logout').'">Cerrar Sesión</a></p>';
-});
+// Dashboard / Panel Inicial
+$routes->get('dashboard', 'PanelInicial::index');
+$routes->get('panelinicial', 'PanelInicial::index');
 
 // Rutas de Usuarios 
 $routes->group('usuarios', ['namespace' => 'App\Controllers'], static function ($routes) {
