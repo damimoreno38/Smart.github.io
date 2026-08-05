@@ -31,16 +31,8 @@
                 <input type="password" name="password" class="form-control mt-1" id="password" required placeholder="Ingresa tu contraseña">
             </div>
             
-            <button type="submit" class="btn btn-primary w-100 mb-3">Ingresar</button>
+            <button type="submit" class="btn btn-primary w-100">Ingresar</button>
         </form>
-
-        <hr>
-
-        <div class="text-center">
-            <a href="<?= base_url('usuarios') ?>" class="btn btn-outline-secondary w-100">
-                Gestión de Usuarios
-            </a>
-        </div>
     </div>
 </body>
 </html>
