@@ -13,10 +13,16 @@ class Login extends BaseController
         return view('login');
     }
 
+    public function error()
+    {
+        helper(['form', 'url']);
+        return view('login_error');
+    }
+
     public function auth()
     {
-        $session  = session();
-        $model    = new UsuarioModel();
+        $session = session();
+        $model   = new UsuarioModel();
         
         $curp     = strtoupper(trim($this->request->getPost('curp')));
         $password = $this->request->getPost('password');
@@ -37,15 +43,14 @@ class Login extends BaseController
                 return redirect()->to('/dashboard');
             } else {
                 $session->setFlashdata('msg', 'Contraseña incorrecta.');
-                return redirect()->to('/login');
+                return redirect()->to('login/error');
             }
         } else {
             $session->setFlashdata('msg', 'La CURP ingresada no se encuentra registrada.');
-            return redirect()->to('/login');
+            return redirect()->to('login/error');
         }
     }
 
-    
     public function forgotPassword()
     {
         helper(['form', 'url']);
@@ -91,7 +96,6 @@ class Login extends BaseController
         }
     }
 
-   
     public function resetPassword($token = null)
     {
         if (!$token) {
@@ -111,7 +115,6 @@ class Login extends BaseController
         return view('login/reset_password', ['token' => $token]);
     }
 
-    
     public function updatePassword()
     {
         $session  = session();
@@ -124,9 +127,8 @@ class Login extends BaseController
                       ->first();
 
         if ($user) {
-           
             $model->update($user['ID_usuario'], [
-                'Contraseña'       => $password,
+                'Contraseña'       => password_hash($password, PASSWORD_BCRYPT),
                 'reset_token'      => null,
                 'reset_expires_at' => null
             ]);
