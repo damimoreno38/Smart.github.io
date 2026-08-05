@@ -6,6 +6,12 @@ use CodeIgniter\Router\RouteCollection;
  * @var RouteCollection $routes
  */
 
+// Ruta de Error
+$routes->get('login/error', 'Login::error');
+
+//ruta del apartado del mapa
+$routes->get('mapa', 'Mapa::index');
+
 // Rutas de Login
 $routes->get('/', 'Login::index');
 $routes->get('login', 'Login::index');
