@@ -10,7 +10,10 @@
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2>Administración de Usuarios</h2>
-            <a href="<?= base_url('/usuarios/crear') ?>" class="btn btn-success">+ Registrar Nuevo Usuario</a>
+            <div>
+                <a href="<?= base_url('login') ?>" class="btn btn-outline-secondary me-2">Volver al Login</a>
+                <a href="<?= base_url('usuarios/crear') ?>" class="btn btn-success">+ Registrar Nuevo Usuario</a>
+            </div>
         </div>
 
         <?php if(session()->getFlashdata('msg')):?>
@@ -21,10 +24,9 @@
             <thead class="table-dark">
                 <tr>
                     <th>ID</th>
-                    <th>Nombre de Usuario</th>
-                    <th>Correo</th>
-                    <th>Puesto ID</th>
-                    <th>Rol ID</th>
+                    <th>CURP</th>
+                    <th>ID Puesto</th>
+                    <th>ID Rol</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -32,13 +34,12 @@
                 <?php if(!empty($usuarios) && is_array($usuarios)): ?>
                     <?php foreach($usuarios as $user): ?>
                         <tr>
-                            <td><?= $user['ID_usuario'] ?></td>
-                            <td><?= $user['Nombre_usuario'] ?></td>
-                            <td><?= $user['Correo'] ?></td>
-                            <td><?= $user['PUESTO_ID_puesto'] ?></td>
-                            <td><?= $user['ROLES_ID_roles'] ?></td>
+                            <td><?= $user['ID_usuario'] ?? '' ?></td>
+                            <td><?= $user['curp'] ?? '' ?></td>
+                            <td><?= $user['PUESTO_ID_puesto'] ?? '' ?></td>
+                            <td><?= $user['ROLES_ID_roles'] ?? '' ?></td>
                             <td>
-                                <a href="<?= base_url('/usuarios/eliminar/'.$user['ID_usuario']) ?>" 
+                                <a href="<?= base_url('usuarios/eliminar/'.($user['ID_usuario'] ?? '')) ?>" 
                                    class="btn btn-danger btn-sm" 
                                    onclick="return confirm('¿Deseas eliminar este usuario?')">
                                    Eliminar
@@ -48,7 +49,7 @@
                     <?php endforeach; ?>
                 <?php else: ?>
                     <tr>
-                        <td colspan="6" class="text-center">No hay usuarios registrados.</td>
+                        <td colspan="5" class="text-center">No hay usuarios registrados.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>

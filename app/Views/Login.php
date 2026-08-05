@@ -11,24 +11,36 @@
         <h3 class="text-center mb-4">Proyecto SMART</h3>
 
         <?php if(session()->getFlashdata('msg')):?>
-            <div class="alert alert-danger"><?= session()->getFlashdata('msg') ?></div>
+            <div class="alert alert-danger text-center"><?= session()->getFlashdata('msg') ?></div>
+        <?php endif;?>
+
+        <?php if(session()->getFlashdata('success')):?>
+            <div class="alert alert-success text-center"><?= session()->getFlashdata('success') ?></div>
         <?php endif;?>
 
         <form action="<?= base_url('/login/auth') ?>" method="post">
             <div class="mb-3">
-                <label for="nombre" class="form-label">Nombre de usuario</label>
-                <input type="text" name="nombre" class="form-control" id="nombre" required placeholder="Ingresa tu nombre de usuario">
+                <label for="curp" class="form-label font-weight-bold">CURP</label>
+                <input type="text" name="curp" class="form-control text-uppercase" id="curp" required placeholder="Ingresa tu CURP" maxlength="18">
             </div>
             <div class="mb-3">
-                <label for="correo" class="form-label">Correo electrónico</label>
-                <input type="email" name="correo" class="form-control" id="correo" required placeholder="usuario@ejemplo.com">
+                <div class="d-flex justify-content-between align-items-center">
+                    <label for="password" class="form-label font-weight-bold mb-0">Contraseña</label>
+                    <a href="<?= base_url('login/forgot-password') ?>" class="text-decoration-none small">¿Olvidaste tu contraseña?</a>
+                </div>
+                <input type="password" name="password" class="form-control mt-1" id="password" required placeholder="Ingresa tu contraseña">
             </div>
-            <div class="mb-3">
-                <label for="password" class="form-label">Contraseña</label>
-                <input type="password" name="password" class="form-control" id="password" required placeholder="Ingresa tu contraseña">
-            </div>
-            <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+            
+            <button type="submit" class="btn btn-primary w-100 mb-3">Ingresar</button>
         </form>
+
+        <hr>
+
+        <div class="text-center">
+            <a href="<?= base_url('usuarios') ?>" class="btn btn-outline-secondary w-100">
+                Gestión de Usuarios
+            </a>
+        </div>
     </div>
 </body>
 </html>

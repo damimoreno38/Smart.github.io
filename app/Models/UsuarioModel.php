@@ -11,7 +11,15 @@ class UsuarioModel extends Model
     protected $useAutoIncrement = true;
     protected $returnType       = 'array';
 
-    protected $allowedFields    = ['Nombre_usuario', 'Contraseña', 'Correo', 'PUESTO_ID_puesto', 'ROLES_ID_roles'];
+    protected $allowedFields    = [
+        'curp', 
+        'email',
+        'Contraseña', 
+        'PUESTO_ID_puesto', 
+        'ROLES_ID_roles',
+        'reset_token',          
+        'reset_expires_at',
+    ];
 
     protected $useTimestamps    = false;
 
