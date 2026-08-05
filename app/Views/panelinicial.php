@@ -70,7 +70,7 @@
         <!-- Tarjeta principal -->
         <div class="container">
             <h1>Panel Inicial</h1>
-            <p>Bienvenido a la aplicación</p>
+            <p>Bienvenido a Smart</p>
         </div>
 
         <!-- Segunda tarjeta -->
@@ -78,8 +78,12 @@
             <h2>OPCIONES</h2>
             <p>Seleccione una acción</p>
 
-            <button>OPCIONES</button>
-            <button>VISUALISACION DE MAPA</button>
+            <a href="<?= base_url('usuarios') ?>" style="margin: 5px;">
+                <button>Gestión de Usuarios</button>
+            </a>
+            <a href="<?= base_url('mapa') ?>" style="margin: 5px;">
+                <button>Visualizar mapa</button>
+            </a>
         </div>
 
     </div>
