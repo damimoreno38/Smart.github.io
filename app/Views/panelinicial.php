@@ -84,6 +84,8 @@
             <a href="<?= base_url('mapa') ?>" style="margin: 5px;">
                 <button>Visualizar mapa</button>
             </a>
+             <a href="<?= base_url('login') ?>" style="margin: 5px;">
+                <button>Cerrar sesion</button>
         </div>
     </div>
 

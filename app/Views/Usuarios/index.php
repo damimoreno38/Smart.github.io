@@ -11,7 +11,7 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h2>Administración de Usuarios</h2>
             <div>
-                <a href="<?= base_url('login') ?>" class="btn btn-outline-secondary me-2">Volver al Login</a>
+                <a href="<?= base_url('panelinicial') ?>" class="btn btn-outline-secondary me-2">Volver al Panel Inicial</a>
                 <a href="<?= base_url('usuarios/crear') ?>" class="btn btn-success">+ Registrar Nuevo Usuario</a>
             </div>
         </div>
