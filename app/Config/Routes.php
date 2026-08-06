@@ -9,8 +9,11 @@ use CodeIgniter\Router\RouteCollection;
 // Ruta de Error
 $routes->get('login/error', 'Login::error');
 
-//ruta del apartado del mapa
+//Ruta de mapa
 $routes->get('mapa', 'Mapa::index');
+
+//Ruta de error de mapa 
+$routes->get('error-mapa', 'Mapa::errorMapa');
 
 // Rutas de Login
 $routes->get('/', 'Login::index');
