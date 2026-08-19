@@ -45,7 +45,6 @@ class Login extends BaseController
         }
     }
 
-    
     public function forgotPassword()
     {
         helper(['form', 'url']);
@@ -91,7 +90,6 @@ class Login extends BaseController
         }
     }
 
-   
     public function resetPassword($token = null)
     {
         if (!$token) {
@@ -100,8 +98,8 @@ class Login extends BaseController
 
         $model = new UsuarioModel();
         $user  = $model->where('reset_token', $token)
-                       ->where('reset_expires_at >=', date('Y-m-d H:i:s'))
-                       ->first();
+                     ->where('reset_expires_at >=', date('Y-m-d H:i:s'))
+                     ->first();
 
         if (!$user) {
             session()->setFlashdata('msg', 'El enlace es inválido o ha expirado.');
@@ -111,7 +109,6 @@ class Login extends BaseController
         return view('login/reset_password', ['token' => $token]);
     }
 
-    
     public function updatePassword()
     {
         $session  = session();
@@ -124,7 +121,6 @@ class Login extends BaseController
                       ->first();
 
         if ($user) {
-           
             $model->update($user['ID_usuario'], [
                 'Contraseña'       => $password,
                 'reset_token'      => null,

@@ -2,48 +2,62 @@
 
 namespace App\Controllers;
 
-use App\Controllers\BaseController; 
 use App\Models\UsuarioModel;
 
 class Usuarios extends BaseController
 {
     public function index()
     {
-        $model = new UsuarioModel();
-        $data['usuarios'] = $model->findAll();
+        $usuarioModel = new UsuarioModel();
+        $data['usuarios'] = $usuarioModel->findAll();
 
-        return view('usuarios/index', $data);
+        return view('usuarios/index', $data); 
+    }
+
+    public function nuevo()
+    {
+        return view('usuarios/nuevo');
     }
 
     public function crear()
     {
-        return view('usuarios/crear');
+        return view('usuarios/nuevo');
     }
 
     public function guardar()
     {
-        $model = new UsuarioModel();
+        $usuarioModel = new UsuarioModel();
 
-        $data = [
-            'curp'             => strtoupper(trim($this->request->getPost('curp'))),
-            'email'            => trim($this->request->getPost('email')),
-            'Contraseña'       => $this->request->getPost('password'),
-            'PUESTO_ID_puesto' => $this->request->getPost('puesto_id'),
-            'ROLES_ID_roles'   => $this->request->getPost('roles_id'),
+        $curp = strtoupper($this->request->getPost('curp'));
+        $password = $this->request->getPost('password');
+        $puestoId = $this->request->getPost('puesto_id');
+        $rolesId = $this->request->getPost('roles_id');
+
+        $existe = $usuarioModel->where('curp', $curp)->first();
+        if ($existe) {
+            return redirect()->back()->withInput()->with('msg', 'La CURP ya se encuentra registrada.');
+        }
+
+        $datos = [
+            'curp' => $curp,
+            'Contraseña' => $password, 
+            'PUESTO_ID_puesto' => $puestoId,
+            'ROLES_ID_roles' => $rolesId
         ];
 
-        $model->save($data);
-        session()->setFlashdata('msg', 'Usuario registrado correctamente.');
-
-        return redirect()->to('usuarios');
+        if ($usuarioModel->insert($datos)) {
+            return redirect()->to(base_url('/'))->with('success', 'Registro exitoso. Ahora puedes iniciar sesión.');
+        } else {
+            return redirect()->back()->withInput()->with('msg', 'Error al registrar el usuario. Inténtalo de nuevo.');
+        }
     }
 
     public function eliminar($id = null)
     {
-        $model = new UsuarioModel();
-        $model->delete($id);
-        session()->setFlashdata('msg', 'Usuario eliminado.');
-
-        return redirect()->to('usuarios');
+        $usuarioModel = new UsuarioModel();
+        if ($id && $usuarioModel->delete($id)) {
+            return redirect()->to(base_url('usuarios'))->with('msg', 'Usuario eliminado correctamente.');
+        }
+        return redirect()->to(base_url('usuarios'))->with('msg', 'No se pudo eliminar el usuario.');
     }
 }

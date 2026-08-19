@@ -9,10 +9,10 @@ use CodeIgniter\Router\RouteCollection;
 // Ruta de Error
 $routes->get('login/error', 'Login::error');
 
-//Ruta de mapa
+// Ruta de mapa
 $routes->get('mapa', 'Mapa::index');
 
-//Ruta de error de mapa 
+// Ruta de error de mapa 
 $routes->get('error-mapa', 'Mapa::errorMapa');
 
 // Rutas de Login
@@ -34,7 +34,7 @@ $routes->get('panelinicial', 'PanelInicial::index');
 // Rutas de Usuarios 
 $routes->group('usuarios', ['namespace' => 'App\Controllers'], static function ($routes) {
     $routes->get('/', 'Usuarios::index');
-    $routes->get('crear', 'Usuarios::crear');
+    $routes->get('nuevo', 'Usuarios::nuevo'); 
     $routes->post('guardar', 'Usuarios::guardar');
     $routes->get('eliminar/(:num)', 'Usuarios::eliminar/$1');
 });
