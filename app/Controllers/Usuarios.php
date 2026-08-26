@@ -3,6 +3,8 @@
 namespace App\Controllers;
 
 use App\Models\UsuarioModel;
+use App\Models\PuestoModel;
+use App\Models\RolModel;
 
 class Usuarios extends BaseController
 {
@@ -16,22 +18,28 @@ class Usuarios extends BaseController
 
     public function nuevo()
     {
-        return view('usuarios/nuevo');
+        $puestoModel = new PuestoModel();
+        $rolModel    = new RolModel();
+
+        $data['puestos'] = $puestoModel->findAll();
+        $data['roles']   = $rolModel->findAll();
+
+        return view('usuarios/nuevo', $data);
     }
 
     public function crear()
     {
-        return view('usuarios/nuevo');
+        return $this->nuevo();
     }
 
     public function guardar()
     {
         $usuarioModel = new UsuarioModel();
 
-        $curp = strtoupper($this->request->getPost('curp'));
+        $curp     = strtoupper(trim($this->request->getPost('curp')));
         $password = $this->request->getPost('password');
         $puestoId = $this->request->getPost('puesto_id');
-        $rolesId = $this->request->getPost('roles_id');
+        $rolesId  = $this->request->getPost('roles_id');
 
         $existe = $usuarioModel->where('curp', $curp)->first();
         if ($existe) {
@@ -39,10 +47,10 @@ class Usuarios extends BaseController
         }
 
         $datos = [
-            'curp' => $curp,
-            'Contraseña' => $password, 
+            'curp'             => $curp,
+            'Contraseña'       => $password, 
             'PUESTO_ID_puesto' => $puestoId,
-            'ROLES_ID_roles' => $rolesId
+            'ROLES_ID_roles'   => $rolesId
         ];
 
         if ($usuarioModel->insert($datos)) {
