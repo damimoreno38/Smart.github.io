@@ -12,7 +12,8 @@ class UsuarioModel extends Model
     protected $returnType       = 'array';
 
     protected $allowedFields    = [
-        'curp', 
+        'curp',
+        'email',
         'Contraseña', 
         'PUESTO_ID_puesto', 
         'ROLES_ID_roles',
