@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Controllers\BaseController;
 use App\Models\UsuarioModel;
 use App\Models\PuestoModel;
 use App\Models\RolModel;
@@ -11,20 +12,22 @@ class Usuarios extends BaseController
     public function index()
     {
         $usuarioModel = new UsuarioModel();
-        $data['usuarios'] = $usuarioModel->findAll();
+        $data['usuarios'] = $usuarioModel->obtenerUsuariosConRelaciones();
 
-        return view('usuarios/index', $data); 
+        return view('Usuarios/index', $data);
     }
 
     public function nuevo()
     {
+        helper(['form', 'url']);
+
         $puestoModel = new PuestoModel();
         $rolModel    = new RolModel();
 
         $data['puestos'] = $puestoModel->findAll();
         $data['roles']   = $rolModel->findAll();
 
-        return view('usuarios/nuevo', $data);
+        return view('Usuarios/nuevo', $data);
     }
 
     public function crear()
@@ -34,38 +37,55 @@ class Usuarios extends BaseController
 
     public function guardar()
     {
-        $usuarioModel = new UsuarioModel();
+        helper(['form', 'url']);
+        $session = session();
+        $model   = new UsuarioModel();
 
-        $curp     = strtoupper(trim($this->request->getPost('curp')));
-        $password = $this->request->getPost('password');
-        $puestoId = $this->request->getPost('puesto_id');
-        $rolesId  = $this->request->getPost('roles_id');
+        $curpInput = strtoupper(trim($this->request->getPost('curp') ?? ''));
+        $password  = (string) $this->request->getPost('password');
 
-        $existe = $usuarioModel->where('curp', $curp)->first();
-        if ($existe) {
-            return redirect()->back()->withInput()->with('msg', 'La CURP ya se encuentra registrada.');
+        if (empty($curpInput) || empty($password)) {
+            $session->setFlashdata('msg', 'Todos los campos son obligatorios.');
+            return redirect()->back()->withInput();
         }
 
-        $datos = [
-            'curp'             => $curp,
-            'Contraseña'       => $password, 
-            'PUESTO_ID_puesto' => $puestoId,
-            'ROLES_ID_roles'   => $rolesId
+        // Hasheo seguro usando la columna 'password'
+        $passwordHash = password_hash($password, PASSWORD_BCRYPT);
+
+        $data = [
+            'curp'             => $curpInput,
+            'password'         => $passwordHash,
+            'PUESTO_ID_puesto' => $this->request->getPost('puesto_id'),
+            'ROLES_ID_roles'   => $this->request->getPost('roles_id'),
         ];
 
-        if ($usuarioModel->insert($datos)) {
-            return redirect()->to(base_url('/'))->with('success', 'Registro exitoso. Ahora puedes iniciar sesión.');
-        } else {
-            return redirect()->back()->withInput()->with('msg', 'Error al registrar el usuario. Inténtalo de nuevo.');
+        try {
+            if ($model->insert($data)) {
+                $session->setFlashdata('success', '¡Registro exitoso! Ya puedes iniciar sesión.');
+                return redirect()->to(base_url('/login'));
+            }
+        } catch (\CodeIgniter\Database\Exceptions\DatabaseException $e) {
+            if (str_contains($e->getMessage(), '1062') || str_contains($e->getMessage(), 'curp')) {
+                $session->setFlashdata('msg', 'La CURP ingresada ya se encuentra registrada en el sistema.');
+            } else {
+                $session->setFlashdata('msg', 'Error en la base de datos: ' . $e->getMessage());
+            }
+            return redirect()->back()->withInput();
         }
+
+        $session->setFlashdata('msg', 'Ocurrió un error al registrar el usuario.');
+        return redirect()->back()->withInput();
     }
 
     public function eliminar($id = null)
     {
-        $usuarioModel = new UsuarioModel();
-        if ($id && $usuarioModel->delete($id)) {
-            return redirect()->to(base_url('usuarios'))->with('msg', 'Usuario eliminado correctamente.');
+        $model = new UsuarioModel();
+
+        if ($id !== null) {
+            $model->delete($id);
+            session()->setFlashdata('success', 'Usuario eliminado correctamente.');
         }
-        return redirect()->to(base_url('usuarios'))->with('msg', 'No se pudo eliminar el usuario.');
+
+        return redirect()->to(base_url('/usuarios'));
     }
 }

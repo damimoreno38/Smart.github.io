@@ -6,32 +6,16 @@ use CodeIgniter\Model;
 
 class UsuarioModel extends Model
 {
-    protected $table            = 'USUARIOS';
-    protected $primaryKey       = 'ID_usuario';
-    protected $useAutoIncrement = true;
-    protected $returnType       = 'array';
+    protected $table            = 'usuarios';
+    protected $primaryKey       = 'id'; // Cambia a 'ID_usuario' si así se llama en tu base de datos
+    protected $allowedFields    = ['curp', 'password', 'PUESTO_ID_puesto', 'ROLES_ID_roles'];
 
-    protected $allowedFields    = [
-        'curp',
-        'email',
-        'Contraseña', 
-        'PUESTO_ID_puesto', 
-        'ROLES_ID_roles',
-        'reset_token',          
-        'reset_expires_at',
-    ];
-
-    protected $useTimestamps    = false;
-
-    protected $beforeInsert     = ['hashPassword'];
-    protected $beforeUpdate     = ['hashPassword'];
-
-    protected function hashPassword(array $data)
+    // Método para obtener relaciones si lo usas en tu panel de administración
+    public function obtenerUsuariosConRelaciones()
     {
-        if (isset($data['data']['Contraseña']) && !empty($data['data']['Contraseña'])) {
-            $data['data']['Contraseña'] = password_hash($data['data']['Contraseña'], PASSWORD_DEFAULT);
-        }
-
-        return $data;
+        return $this->select('usuarios.*, puestos.nombre_puesto, roles.nombre_rol')
+                    ->join('puestos', 'puestos.id_puesto = usuarios.PUESTO_ID_puesto', 'left')
+                    ->join('roles', 'roles.id_roles = usuarios.ROLES_ID_roles', 'left')
+                    ->findAll();
     }
 }

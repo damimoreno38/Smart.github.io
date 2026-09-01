@@ -4,7 +4,9 @@
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title>Registrar Usuario - Proyecto Smart</title>
+
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  
   <script>
     tailwind.config = {
       theme: {
@@ -22,7 +24,9 @@
       }
     }
   </script>
+
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+
   <style data-purpose="custom-styles">
     body { font-family: 'Inter', sans-serif; }
     .input-smart-custom {
@@ -50,9 +54,12 @@
     .alert-codeigniter-danger { background-color: #c03c3c; border: 1px solid #c03c3c; color: #fecaca; }
   </style>
 </head>
+
 <body class="text-white min-h-screen flex items-center justify-center p-6 bg-smart-red">
   <div class="bg-smart-bg w-full max-w-4xl rounded-2xl shadow-2xl flex flex-col md:flex-row overflow-hidden">
+    
     <div class="w-full md:w-1/2 p-8 md:p-12 flex flex-col justify-center">
+      
       <header class="w-full flex items-center justify-start mb-8">
         <div class="flex items-center gap-3">
           <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24">
@@ -69,7 +76,7 @@
         <div class="flex items-center justify-between mb-6">
           <h2 class="text-2xl font-bold">Registro Nuevo Usuario</h2>
           <svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
+            <path d="M15 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 1.79 4 4 4zm-9-2V7H4v3H1v2h3v3h2v-3h3v-2H6zm9 4c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"></path>
           </svg>
         </div>
 
@@ -79,7 +86,8 @@
           </div>
         <?php endif;?>
 
-        <form action="<?= base_url('/usuarios/guardar') ?>" method="post" class="flex flex-col gap-4">
+        <form action="<?= base_url('usuarios/guardar') ?>" method="post" class="flex flex-col gap-4">
+          
           <div class="flex flex-col gap-1">
             <label class="text-sm font-semibold tracking-wide" for="curp">CURP</label>
             <input class="input-smart-custom rounded-md py-3 px-4 placeholder-smart-text-muted w-full text-sm" id="curp" name="curp" value="<?= old('curp') ?>" placeholder="Ingresa la CURP" required maxlength="18" type="text" />
@@ -94,11 +102,13 @@
             <label class="text-sm font-semibold tracking-wide" for="puesto_id">Puesto</label>
             <select class="input-smart-custom rounded-md py-3 px-4 w-full text-sm" id="puesto_id" name="puesto_id" required>
               <option value="" disabled selected>Selecciona un puesto</option>
-              <?php foreach($puestos as $puesto): ?>
-                <option value="<?= $puesto['ID_puesto'] ?>" <?= old('puesto_id') == $puesto['ID_puesto'] ? 'selected' : '' ?>>
-                  <?= $puesto['Nombre_puesto'] ?>
-                </option>
-              <?php endforeach; ?>
+              <?php if (!empty($puestos)): ?>
+                <?php foreach($puestos as $puesto): ?>
+                  <option value="<?= $puesto['ID_puesto'] ?>" <?= old('puesto_id') == $puesto['ID_puesto'] ? 'selected' : '' ?>>
+                    <?= $puesto['Nombre_puesto'] ?>
+                  </option>
+                <?php endforeach; ?>
+              <?php endif; ?>
             </select>
           </div>
 
@@ -106,11 +116,13 @@
             <label class="text-sm font-semibold tracking-wide" for="roles_id">Rol de Usuario</label>
             <select class="input-smart-custom rounded-md py-3 px-4 w-full text-sm" id="roles_id" name="roles_id" required>
               <option value="" disabled selected>Selecciona un rol</option>
-              <?php foreach($roles as $rol): ?>
-                <option value="<?= $rol['ID_roles'] ?>" <?= old('roles_id') == $rol['ID_roles'] ? 'selected' : '' ?>>
-                  <?= $rol['Tipo_rol'] ?>
-                </option>
-              <?php endforeach; ?>
+              <?php if (!empty($roles)): ?>
+                <?php foreach($roles as $rol): ?>
+                  <option value="<?= $rol['ID_roles'] ?>" <?= old('roles_id') == $rol['ID_roles'] ? 'selected' : '' ?>>
+                    <?= $rol['Tipo_rol'] ?>
+                  </option>
+                <?php endforeach; ?>
+              <?php endif; ?>
             </select>
           </div>
 
@@ -123,7 +135,7 @@
 
         <div class="mt-6 text-center">
           <p class="text-sm text-white font-medium">
-            ¿Ya tienes una cuenta? <a class="text-white hover:text-smart-red transition-colors font-semibold" href="<?= base_url('/') ?>">Volver al Login</a>
+            ¿Ya tienes una cuenta? <a class="text-white hover:text-smart-red transition-colors font-semibold" href="<?= base_url('/login') ?>">Volver al Login</a>
           </p>
         </div>
       </main>
