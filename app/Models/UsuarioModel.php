@@ -6,24 +6,21 @@ use CodeIgniter\Model;
 
 class UsuarioModel extends Model
 {
-    protected $table            = 'USUARIOS';
+    // * DEFINE LA TABLA DE USUARIOS EN LA BASE DE DATOS
+    protected $table            = 'usuarios';
+    
+    // * ESTABLECE LA LLAVE PRIMARIA DE LA TABLA USUARIOS
     protected $primaryKey       = 'ID_usuario';
-    protected $useAutoIncrement = true;
-    protected $returnType       = 'array';
+    
+    // * CAMPOS PERMITIDOS PARA INSERTAR O ACTUALIZAR DATOS
+    protected $allowedFields    = ['curp', 'password', 'ROLES_ID_roles'];
 
-    protected $allowedFields    = ['Nombre_usuario', 'Contraseña', 'Correo', 'PUESTO_ID_puesto', 'ROLES_ID_roles'];
-
-    protected $useTimestamps    = false;
-
-    protected $beforeInsert     = ['hashPassword'];
-    protected $beforeUpdate     = ['hashPassword'];
-
-    protected function hashPassword(array $data)
+    // * MÉTODO PARA OBTENER TODOS LOS USUARIOS JUNTO CON EL NOMBRE DE SU ROL
+    public function obtenerUsuariosConRelaciones()
     {
-        if (isset($data['data']['Contraseña']) && !empty($data['data']['Contraseña'])) {
-            $data['data']['Contraseña'] = password_hash($data['data']['Contraseña'], PASSWORD_DEFAULT);
-        }
-
-        return $data;
+        // * HACE UN JOIN CON LA TABLA ROLES PARA TRAER EL TIPO DE ROL Y DEVUELVE TODOS LOS REGISTROS
+        return $this->select('usuarios.*, roles.Tipo_rol')
+                    ->join('roles', 'roles.ID_roles = usuarios.ROLES_ID_roles', 'left')
+                    ->findAll();
     }
 }
