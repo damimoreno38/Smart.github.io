@@ -135,7 +135,7 @@
         </svg>
         <div class="flex flex-col">
           <span class="text-xs sm:text-sm font-extrabold tracking-wider uppercase text-white leading-none">PROYECTO SMART</span>
-          <span class="text-[9px] sm:text-[10px] text-smart-text-muted font-medium tracking-normal mt-0.5">Developers Ana and Axel</span>
+          <span class="text-[9px] sm:text-[10px] text-smart-text-muted font-medium tracking-normal mt-0.5">Developers Ana</span>
         </div>
       </a>
     </div>
@@ -255,11 +255,17 @@
           </div>
 
           <!-- CONTENEDOR VISUAL DE LA IMAGEN -->
-          <div class="relative w-full aspect-video sm:aspect-[21/9] bg-smart-bg flex items-center justify-center overflow-hidden">
-            
-            <img alt="Visualización del Panel" class="w-full h-full object-cover group-hover:scale-105 smart-transition" src="<?= base_url('CIUDAD1.jpg') ?>">
-            
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20"></div>
+        <div class="relative w-full aspect-video sm:aspect-[21/9] bg-smart-bg flex items-center justify-center overflow-hidden group">
+
+    <!-- Fondo difuminado para rellenar los espacios vacíos -->
+    <div class="absolute inset-0 bg-cover bg-center filter blur-md opacity-50 scale-110" style="background-image: url('<?= base_url('Coyote.jpeg') ?>');"></div>
+
+    <!-- Imagen principal agrandada (cambiamos h-full por h-[115%] o ajustamos la escala) -->
+    <img alt="Visualización del Panel" class="relative z-10 h-[230%] w-auto object-contain group-hover:scale-105 smart-transition" src="<?= base_url('Coyote.jpeg') ?>">
+
+    <!-- Gradiente oscuro encima -->
+    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none"></div>
+</div>
 
             <!-- CONTROLES DE NAVEGACIÓN -->
             <button id="prevSlide" aria-label="Anterior" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-8 sm:w-9 h-8 sm:h-9 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center text-white hover:text-white hover:bg-smart-red hover:border-smart-red smart-transition backdrop-blur-md">

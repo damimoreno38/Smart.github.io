@@ -8,14 +8,15 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
+
         body {
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #c03c3c 0%, #c03c3c 100%) !important;
+            background: linear-gradient(135deg, #161515 0%, #161515 100%) !important;
         }
 
         header {
-            background: linear-gradient(135deg, #c03c3c 0%, #c03c3c 100%);
+            background: linear-gradient(135deg, #161515 0%, #161515 100%);
             color: white;
             text-align: center;
             padding: 15px 15px 5px 15px;
@@ -33,8 +34,8 @@
             padding: 5px 12px;
             border: none;
             border-radius: 6px;
-            background-color: #222120;
-            color: white;
+            background-color: #807c79;
+            color: black;
             cursor: pointer;
             font-size: 12px;
             font-weight: 600;
@@ -42,7 +43,7 @@
         }
 
         header button:hover {
-            background-color: #c03c3c;
+            background-color: #bdb2b2;
             transform: translateY(-1px);
         }
 
@@ -81,21 +82,21 @@
             margin-bottom: 20px;
             border: none;
             border-radius: 10px;
-            color: white;
+            color: black;
             font-size: 15px;
             font-weight: 600;
             cursor: pointer;
             position: relative;
-            background-color: #222120;
+            background-color: #776b6b;
             transition: all 0.3s ease;
             text-align: left;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 4px 10px #776b6b(226, 211, 211, 0.92);
         }
 
         .sidebar button:hover {
-            background-color: #a02e2e;
+            background-color: #d6c3c3;
             transform: translateY(-1px);
-            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 6px 14px rgba(184, 172, 172, 0.3);
         }
 
         #map {
@@ -115,7 +116,7 @@
             top: 50%;
             right: 8px;
             transform: translateY(-50%);
-            background: #c03c3c;
+            background: #151416;
             color: white;
             border-radius: 50%;
             width: 16px;
@@ -128,7 +129,7 @@
         }
 
         .sidebar button:hover .badge {
-            background: #222120;
+            background: #83828a;
         }
 
        
@@ -138,15 +139,92 @@
             font-size: 11px;
             border: none;
             border-radius: 6px;
-            background-color: #222120;
+            background-color: #161616;
             color: white;
             cursor: pointer;
             transition: background 0.2s;
         }
 
-        .leaflet-popup-content button:hover {
-            background-color: #c03c3c;
+        .alerta-lateral {
+           margin-left: 190px !important;
+           margin-top: 80px !important;
         }
+
+        .leaflet-popup-content button:hover {
+            background-color: #534e4e;
+        }
+
+        #tablaAtendidos {
+           flex: 1;
+           background: #363636;
+           border-radius: 18px;
+           padding: 28px;
+           box-sizing: border-box;
+           color: #363636;
+           box-shadow: 0 12px 35px rgba(22, 22, 22, 0.2);
+           min-width: 0;
+        }
+        
+        .table-title {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 22px;
+        }
+
+        .table-title h2 {
+          margin: 0;
+          color: #3a3838;
+          font-size: 24px;
+          font-weight: 700;
+          text-transform: uppercase;
+        }
+
+        #tablaAtendidos table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        #tablaAtendidos th,
+        #tablaAtendidos td {
+          border: 1px solid #6f7572;
+          padding: 12px;
+          text-align: center;
+        }
+
+        #tablaAtendidos th {
+         background-color: #5e5959;
+         color: white;
+        }
+
+        #tablaAtendidos td:hover {
+         background-color: #141414;
+         color: white;
+         transition: background-color 0.2s ease;
+       }
+
+       #tablaAtendidos tbody td {
+         transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+       #tablaAtendidos tbody tr:hover td {
+         background-color: #3a3737;
+         color: white;
+        }
+
+        .contenedor-buscador{
+            marguin-bottom: 15xp;
+        }
+
+        #buscadorTabla {
+            width: 300px;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 8px;
+            outline: none;
+            font-size: 14px;
+        }
+
     </style>
 </head>
 <body>
@@ -177,28 +255,180 @@
                 Problemas Pendientes 
                 <span id="badgePendientes" class="badge">0</span>
             </button>
+
+            <button onclick="volverMapa()">
+                Volver al mapa
+            </button>
         </div>
 
         <div id="map"></div>
+    
+    <div id="tablaAtendidos" style="display:none; flex:1;">
+    <h2 style="color:white;">TABLA DE DETALLES</h2>
 
+    <div class="contenedor-buscador">
+        <input
+             type="text"
+             id="buscadorTabla"
+             placeholder="Buscar por ID, problema, ubicación o estado..."
+            >
+        </div>
+            Mostrar más líneas
+
+    <table id="tablaDetalles" style="width:100%; background:white; border-collapse:collapse;">
+    <thead>
+    <tr>
+
+     <th>ID</th>
+     <th>Problema</th>
+     <th>Ubicación</th>
+     <th>Estado</th>
+
+     </tr>
+     </thead>
+     <tbody id="contenidoTabla">
+
+    </tbody>
+    </table>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script>
+
         const map = L.map('map').setView([19.40061, -99.01483], 14);
 
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+        L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
             maxZoom: 30,
             attribution: '&copy; OpenStreetMap &copy; CARTO'
         }).addTo(map);
 
+        let vistaActual = "";
+
         function guardarEstado(punto, color) {
             localStorage.setItem(punto, color);
+            actualizarBurbujas();
         }
 
+        function volverMapa() {
+            document.getElementById("tablaAtendidos").style.display = "none";
+            document.getElementById("map").style.display = "block";
+            map.invalidateSize();
+        }
+
+        const buscador = document.getElementById("buscadorTabla");
+        buscador.addEventListener("keyup", function(){
+
+            let texto = this.value.toLowerCase();
+            let filas = document.querySelectorAll("#tablaDetalles tbody tr");
+
+            filas.forEach(fila => {
+                let contenido = fila.textContent.toLowerCase();
+                if(contenido.includes(texto)){
+                    fila.style.display = "";
+                }else {
+                    fila.style.display = "none";
+                }
+            });
+        })
+
+        const reportes = [
+            {
+                id: 1,
+                nombre: "Drenaje en mal estado",
+                ubicacion: "Alcalcerio y Quinta Avenida"
+            },
+            {
+                id: 2,
+                nombre: "Falla de luz",
+                ubicacion: "Ixtapan y Coatepec"
+            },
+            {
+                id: 3,
+                nombre: "Inundacion detectada",
+                ubicacion: "Ixtapan y Coatepec"
+            },
+            {
+                id: 4,
+                nombre: "Tope en mal estado",
+                ubicacion: "Basilica de Guadalupe"
+            },
+            {
+                id: 5,
+                nombre: "Poste descompuesto",
+                ubicacion: "Flores Mexicanas"
+            },
+            {
+                id: 6,
+                nombre: "Banqueta en mal estado",
+                ubicacion: "Glorieta de Colon"
+            }
+        ];
+
+        function mostrarAtendidos() {
+            vistaActual = "green";
+            actualizaTabla();
+        }
+
+        function mostrarSinAtender() {
+            vistaActual = "red";
+            actualizaTabla();
+        }
+
+        function mostrarPendientes() {
+            vistaActual = "yellow";
+            actualizaTabla();
+        }
+
+        function actualizaTabla() {
+
+            document.getElementById("map").style.display = "none";
+            document.getElementById("tablaAtendidos").style.display = "block";
+            
+            let html = "";
+            reportes.forEach(reporte => {
+                const estado = localStorage.getItem("punto" + reporte.id);
+
+                if (estado === vistaActual) {
+
+                let textoEstado = "";
+                let colorTexto = "";
+
+                if (estado === "green") {
+                   textoEstado = "Atendido";
+                   colorTexto = "green";
+                }
+
+                if (estado === "red") {
+                   textoEstado = "No Atendido";
+                   colorTexto = "red";
+                }
+
+                if (estado === "yellow") {
+                   textoEstado = "Pendiente";
+                   colorTexto = "#d4a000";
+                }
+
+                html += `
+                <tr>
+                <td>${reporte.id}</td>
+                <td>${reporte.nombre}</td>
+                <td>${reporte.ubicacion}</td>
+                <td style="color:${colorTexto}">
+                ${textoEstado}
+                </td>
+                </tr>
+                `;
+            }   
+            });
+
+                document.getElementById("contenidoTabla").innerHTML = html;
+
+            }
+
         function cargarEstado(punto, marcador) {
-            const colorGuardado = localStorage.getItem(punto);
+        const colorGuardado = localStorage.getItem(punto);
 
             if (colorGuardado) {
                 marcador.setStyle({
@@ -241,7 +471,7 @@
             fillOpacity: 0.4
         }).addTo(map)
         punto1.bindPopup(`
-        <b>Drenaje en mal estado</b><br><br>
+        
         <button onclick="atenderReporte1()">
         Atender
         </button>
@@ -251,9 +481,25 @@
         <button onclick="noatendido1()">
         No Atendido
         </button>
+        <button onclick="iconoalerta1()">
+        📋
+        </button>
         `);
 
         cargarEstado("punto1", punto1);
+
+        function iconoalerta1(){
+
+        const reporte = reportes.find(r => r.id === 1);
+
+            Swal.fire({
+            title: reporte.nombre,
+            text: reporte.ubicacion,
+            imageWidth: 400,
+            imageHeight: 200,
+            imageAlt: "Custom image"
+        });
+        }
 
         function atenderReporte1(){
             punto1.setStyle({
@@ -287,7 +533,7 @@
             fillOpacity: 0.4
         }).addTo(map)
         punto2.bindPopup(`
-        <b>Falla de luz</b><br><br>
+        
         <button onclick="atenderReporte2()">
         Atender
         </button>
@@ -297,9 +543,25 @@
         <button onclick="noatendido2()">
         No Atendido
         </button>
+        <button onclick="iconoalerta2()">
+        📋
+        </button>
         `);
 
         cargarEstado("punto2", punto2);
+
+        function iconoalerta2(){
+
+        const reporte = reportes.find(r => r.id === 2);
+        
+            Swal.fire({
+            title: reporte.nombre,
+            text: reporte.ubicacion,
+            imageWidth: 400,
+            imageHeight: 200,
+            imageAlt: "Custom image"
+        });
+        }
 
         function atenderReporte2(){
             punto2.setStyle({
@@ -336,7 +598,7 @@
             fillOpacity: 0.4
         }).addTo(map)
         punto3.bindPopup(`
-        <b>Inundacion detectada</b><br><br>
+
         <button onclick="atenderReporte3()">
         Atender
         </button>
@@ -346,9 +608,25 @@
         <button onclick="noatendido3()">
         No Atendido
         </button>
+        <button onclick="iconoalerta3()">
+        📋
+        </button>
         `);
 
         cargarEstado("punto3", punto3);
+
+        function iconoalerta3(){
+
+        const reporte = reportes.find(r => r.id === 3);
+
+            Swal.fire({
+            title: reporte.nombre,
+            text: reporte.ubicacion,
+            imageWidth: 400,
+            imageHeight: 200,
+            imageAlt: "Custom image"
+        });
+        }
 
         function atenderReporte3(){
             punto3.setStyle({
@@ -385,7 +663,7 @@
             fillOpacity: 0.4
         }).addTo(map)
         punto4.bindPopup(`
-        <b>Tope en mal estado</b><br><br>
+        
         <button onclick="atenderReporte4()">
         Atender
         </button>
@@ -395,9 +673,25 @@
         <button onclick="noatendido4()">
         No Atendido
         </button>
+        <button onclick="iconoalerta4()">
+        📋
+        </button>
         `);
 
         cargarEstado("punto4", punto4);
+
+        function iconoalerta4(){
+
+        const reporte = reportes.find(r => r.id === 4);
+
+            Swal.fire({
+            title: reporte.nombre,
+            text: reporte.ubicacion,
+            imageWidth: 400,
+            imageHeight: 200,
+            imageAlt: "Custom image"
+        });
+        }
 
         function atenderReporte4(){
             punto4.setStyle({
@@ -434,7 +728,7 @@
             fillOpacity: 0.4
         }).addTo(map)
         punto5.bindPopup(`
-        <b>Poste descompuesto</b><br><br>
+        
         <button onclick="atenderReporte5()">
         Atender
         </button>
@@ -444,9 +738,25 @@
         <button onclick="noatendido5()">
         No Atendido
         </button>
+        <button onclick="iconoalerta5()">
+        📋
+        </button>
         `);
 
         cargarEstado("punto5", punto5);
+
+        function iconoalerta5(){
+
+        const reporte = reportes.find(r => r.id === 5);   
+
+            Swal.fire({
+            title: reporte.nombre,
+            text: reporte.ubicacion,
+            imageWidth: 400,
+            imageHeight: 200,
+            imageAlt: "Custom image"
+        });
+        }
 
         function atenderReporte5(){
             punto5.setStyle({
@@ -481,9 +791,10 @@
             color: "red",
             weight: 2,
             fillOpacity: 0.4
+
         }).addTo(map)
         punto6.bindPopup(`
-        <b>Banqueta en mal estado</b><br><br>
+        
         <button onclick="atenderReporte6()">
         Atender
         </button>
@@ -493,9 +804,25 @@
         <button onclick="noatendido6()">
         No Atendido
         </button>
+        <button onclick="iconoalerta6()">
+        📋
+        </button>
         `);
 
         cargarEstado("punto6", punto6);
+
+        function iconoalerta6(){
+
+        const reporte = reportes.find(r => r.id === 6);
+
+            Swal.fire({
+            title: reporte.nombre,
+            text: reporte.ubicacion,
+            imageWidth: 400,
+            imageHeight: 200,
+            imageAlt: "Custom image"
+        });
+        }
 
         function atenderReporte6(){
             punto6.setStyle({
