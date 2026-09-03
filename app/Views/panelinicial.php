@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html class="dark" lang="es">
 <head>
+  <!-- CONFIGURACIÓN BÁSICA DEL DOCUMENTO -->
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
@@ -20,11 +21,11 @@
       theme: {
         extend: {
           colors: {
-            'smart-bg': '#000000',           /* Fondo oscuro base */
-            'smart-red': '#c03c3c',          /* Rojo SMART */
-            'smart-card': '#121212',         /* Superficie de tarjetas */
+            'smart-bg': '#000000',        /* Fondo oscuro base */
+            'smart-red': '#c03c3c',        /* Rojo SMART */
+            'smart-card': '#121212',        /* Superficie de tarjetas */
             'smart-input-bg': '#1a1a1a',    /* Fondo de elementos secundarios */
-            'smart-border': '#2a2a2a',       /* Bordes */
+            'smart-border': '#2a2a2a',      /* Bordes */
             'smart-border-hover': '#404040', /* Bordes al interactuar */
             'smart-text-muted': '#9ca3af',   /* Texto secundario */
           },
@@ -110,9 +111,12 @@
     $rawName = session()->get('name') ?? 'Invitado';
     $initials = strtoupper(substr((string)$rawName, 0, 2));
 
+    // Captura numérica del rol (1 = Administrador, 2 = Usuario)
+    $userRole = (int) (session()->get('role') ?? 0);
+
     // Rutas directas hacia los módulos
     $urlPerfil   = base_url('/perfil');
-    $urlUsuarios = base_url('/usuarios');
+    $urlUsuarios = base_url('/admin/usuarios'); 
     $urlMapa     = base_url('/mapa');
     $urlReportes = base_url('/reportes');
   ?>
@@ -121,8 +125,8 @@
     
     <div class="flex items-center gap-2 sm:gap-3">
       <!-- BOTÓN MENÚ HAMBURGUESA (MÓVIL) -->
-      <button id="mobile-menu-btn" aria-label="Abrir Menú" class="md:hidden text-smart-text-muted hover:text-white transition-colors focus:outline-none p-1.5 rounded-lg border border-smart-border bg-smart-card">
-        <span class="material-symbols-outlined text-2xl flex items-center justify-center">Menu</span>
+      <button id="mobile-menu-btn" aria-label="ABRIR MENÚ" class="md:hidden text-smart-text-muted hover:text-white transition-colors focus:outline-none p-1.5 rounded-lg border border-smart-border bg-smart-card">
+        <span class="material-symbols-outlined text-2xl flex items-center justify-center">menu</span>
       </button>
 
       <!-- LOGO PROYECTO SMART -->
@@ -135,7 +139,7 @@
         </svg>
         <div class="flex flex-col">
           <span class="text-xs sm:text-sm font-extrabold tracking-wider uppercase text-white leading-none">PROYECTO SMART</span>
-          <span class="text-[9px] sm:text-[10px] text-smart-text-muted font-medium tracking-normal mt-0.5">Developers Ana</span>
+          <span class="text-[9px] sm:text-[10px] text-smart-text-muted font-medium tracking-normal mt-0.5 uppercase">DEVELOPERS ANA AND AXEL</span>
         </div>
       </a>
     </div>
@@ -144,76 +148,80 @@
     <div class="flex items-center gap-2 sm:gap-3">
       <?php if ($isLoggedIn): ?>
         <!-- BOTÓN CERRAR SESIÓN -->
-        <a class="flex items-center gap-1.5 sm:gap-2 btn-smart-primary px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs font-bold shadow-sm" href="<?= base_url('/logout') ?>">
+        <a class="flex items-center gap-1.5 sm:gap-2 btn-smart-primary px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs font-bold shadow-sm uppercase" href="<?= base_url('/logout') ?>">
           <span class="material-symbols-outlined text-sm sm:text-base">logout</span>
-          <span>Cerrar Sesión</span>
+          <span>CERRAR SESIÓN</span>
         </a>
       <?php else: ?>
         <!-- BOTÓN INICIAR SESIÓN -->
-        <a class="flex items-center gap-1.5 sm:gap-2 btn-smart-primary px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs font-bold shadow-sm" href="<?= base_url('/login') ?>">
+        <a class="flex items-center gap-1.5 sm:gap-2 btn-smart-primary px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs font-bold shadow-sm uppercase" href="<?= base_url('/login') ?>">
           <span class="material-symbols-outlined text-sm sm:text-base">login</span>
-          <span>Inicia Sesión</span>
+          <span>INICIA SESIÓN</span>
         </a>
       <?php endif; ?>
     </div>  
 
   </header>
 
-  <div class="flex flex-1 overflow-hidden relative">
+  <div class="flex flex-1 overflow-hidden relative w-full">
 
     <!-- BACKDROP MÓVIL CON BLUR -->
     <div id="mobile-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-30 hidden md:hidden transition-opacity"></div>
 
     <!-- BARRA LATERAL (SIDEBAR) -->
-    <aside id="sidebar" class="fixed md:static top-0 left-0 h-full w-64 bg-smart-bg border-r border-smart-border flex-shrink-0 flex flex-col justify-between p-4 z-40 -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out overflow-y-auto">
+    <aside id="sidebar" class="absolute md:relative inset-y-0 left-0 w-64 bg-smart-bg border-r border-smart-border flex-shrink-0 flex flex-col justify-between p-4 z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out overflow-y-auto">
       
       <!-- SECCIÓN SUPERIOR DE NAVEGACIÓN -->
       <div class="space-y-4">
         <div class="px-2 pt-2">
-          <p class="text-[11px] font-bold text-smart-text-muted uppercase tracking-wider">Módulos</p>
+          <p class="text-[11px] font-bold text-smart-text-muted uppercase tracking-wider">MÓDULOS</p>
         </div>
 
         <!-- MENÚ DE NAVEGACIÓN -->
         <nav class="space-y-1.5">
           <!-- 1. PERFIL -->
-          <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-smart-text-muted nav-item-smart font-semibold text-xs tracking-wide" href="<?= $urlPerfil ?>">
+          <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-smart-text-muted nav-item-smart font-semibold text-xs tracking-wide uppercase" href="<?= $urlPerfil ?>">
             <span class="material-symbols-outlined text-xl transition-colors">person</span>
-            <span>Perfil</span>
+            <span>PERFIL</span>
           </a>
 
-          <!-- 2. GESTIÓN DE USUARIOS (Solo visible si inició sesión y es Administrador) -->
-          <?php if ($isLoggedIn && session()->get('role') === 'admin'): ?>
-            <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-smart-text-muted nav-item-smart font-semibold text-xs tracking-wide" href="<?= $urlUsuarios ?>">
+          <!-- 2. GESTIÓN DE USUARIOS (Visible solo si el rol es 1 - Administrador) -->
+          <?php if ($isLoggedIn && $userRole === 1): ?>
+            <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-smart-text-muted nav-item-smart font-semibold text-xs tracking-wide uppercase" href="<?= $urlUsuarios ?>">
               <span class="material-symbols-outlined text-xl transition-colors">group</span>
-              <span>Gestión de Usuarios</span>
+              <span>GESTIÓN DE USUARIOS</span>
             </a>
           <?php endif; ?>
 
           <!-- 3. VISUALIZACIÓN DE MAPA -->
-          <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-smart-text-muted nav-item-smart font-semibold text-xs tracking-wide" href="<?= $urlMapa ?>">
+          <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-smart-text-muted nav-item-smart font-semibold text-xs tracking-wide uppercase" href="<?= $urlMapa ?>">
             <span class="material-symbols-outlined text-xl transition-colors">map</span>
-            <span>Visualización de Mapa</span>
+            <span>VISUALIZACIÓN DE MAPA</span>
           </a>
 
           <!-- 4. REPORTES -->
-          <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-smart-text-muted nav-item-smart font-semibold text-xs tracking-wide" href="<?= $urlReportes ?>">
+          <a class="flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-smart-text-muted nav-item-smart font-semibold text-xs tracking-wide uppercase" href="<?= $urlReportes ?>">
             <span class="material-symbols-outlined text-xl transition-colors">description</span>
-            <span>Reportes</span>
+            <span>REPORTES</span>
           </a>
         </nav>
       </div>
 
       <!-- DATOS DEL USUARIO O INVITADO -->
       <div class="p-3 mt-6 bg-smart-card border border-smart-border rounded-xl flex items-center gap-3">
-        <div class="w-8 h-8 rounded-full bg-smart-red/20 border border-smart-red flex items-center justify-center text-smart-red font-bold text-xs flex-shrink-0">
+        <div class="w-8 h-8 rounded-full bg-smart-red/20 border border-smart-red flex items-center justify-center text-smart-red font-bold text-xs flex-shrink-0 uppercase">
           <?= esc($initials) ?>
         </div>
         <div class="flex flex-col min-w-0">
-          <p class="text-xs font-bold text-white truncate">
+          <p class="text-xs font-bold text-white truncate uppercase">
             <?= esc($rawName) ?>
           </p>
-          <p class="text-[10px] text-smart-text-muted truncate">
-            <?= $isLoggedIn ? 'Rol: ' . esc(ucfirst(session()->get('role') ?? 'Usuario')) : 'Sin iniciar sesión' ?>
+          <p class="text-[10px] text-smart-text-muted truncate uppercase">
+            <?php if ($isLoggedIn): ?>
+              ROL: <?= $userRole === 1 ? 'ADMINISTRADOR (1)' : 'USUARIO GENERAL (' . $userRole . ')' ?>
+            <?php else: ?>
+              SIN INICIAR SESIÓN
+            <?php endif; ?>
           </p>
         </div>
       </div>
@@ -221,7 +229,7 @@
     </aside>
 
     <!-- ÁREA DE CONTENIDO PRINCIPAL -->
-    <main class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 relative bg-black">
+    <main class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 relative bg-black flex flex-col">
       
       <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-64 bg-smart-red/10 blur-[120px] pointer-events-none rounded-full"></div>
 
@@ -230,12 +238,12 @@
         <!-- HEADER DE LA PÁGINA -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-2 border-b border-smart-border/50">
           <div>
-            <h1 class="text-lg sm:text-xl md:text-2xl font-extrabold text-white tracking-tight uppercase">Panel de Control</h1>
-            <p class="text-xs text-smart-text-muted mt-0.5">¡Hola! Bienvenido a Smart, inicia sesión para ingresar al portal.</p>
+            <h1 class="text-lg sm:text-xl md:text-2xl font-extrabold text-white tracking-tight uppercase">PANEL DE CONTROL</h1>
+            <p class="text-xs text-smart-text-muted mt-0.5 uppercase">¡HOLA! BIENVENIDO A SMART.</p>
           </div>
           
           <div class="flex items-center gap-2 self-start sm:self-auto">
-            <span class="px-3 py-1.5 rounded-lg bg-smart-card border border-smart-border text-xs text-smart-text-muted font-medium flex items-center gap-2">
+            <span class="px-3 py-1.5 rounded-lg bg-smart-card border border-smart-border text-xs text-smart-text-muted font-medium flex items-center gap-2 uppercase">
               <span class="material-symbols-outlined text-sm text-smart-red">calendar_today</span>
               <?= date('d M, Y') ?>
             </span>
@@ -243,50 +251,40 @@
         </div>
 
         <!-- TARJETA VISUALIZADORA (CARRUSEL) -->
-        <div class="bg-smart-card border border-smart-border rounded-2xl overflow-hidden shadow-smart-card hover:border-smart-border-hover smart-transition group">
+        <div class="bg-smart-card border border-smart-border rounded-2xl overflow-hidden shadow-smart-card hover:border-smart-border-hover smart-transition group relative">
           
           <!-- ENCABEZADO DE LA TARJETA -->
           <div class="px-4 sm:px-5 py-3 border-b border-smart-border/60 bg-smart-input-bg/50 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 min-w-0">
               <span class="w-2.5 h-2.5 rounded-full bg-smart-red flex-shrink-0"></span>
-              <span class="text-xs font-bold uppercase tracking-wider text-white truncate">Vista Previa del Módulo</span>
+              <span class="text-xs font-bold uppercase tracking-wider text-white truncate">VISTA PREVIA DEL MÓDULO</span>
             </div>
-            <span class="text-[10px] sm:text-[11px] text-smart-text-muted bg-smart-bg px-2 sm:px-2.5 py-1 rounded-md border border-smart-border flex-shrink-0">NezaYork</span>
+            <span class="text-[10px] sm:text-[11px] text-smart-text-muted bg-smart-bg px-2 sm:px-2.5 py-1 rounded-md border border-smart-border flex-shrink-0 uppercase">NEZAYORK</span>
           </div>
 
           <!-- CONTENEDOR VISUAL DE LA IMAGEN -->
-        <div class="relative w-full aspect-video sm:aspect-[21/9] bg-smart-bg flex items-center justify-center overflow-hidden group">
+          <div class="relative w-full aspect-video sm:aspect-[21/9] bg-smart-bg flex items-center justify-center overflow-hidden group">
+            <div class="absolute inset-0 bg-cover bg-center filter blur-md opacity-50 scale-110" style="background-image: url('<?= base_url('Coyote.jpeg') ?>');"></div>
+            <img alt="VISUALIZACIÓN DEL PANEL" class="relative z-10 h-[230%] w-auto object-contain group-hover:scale-105 smart-transition" src="<?= base_url('Coyote.jpeg') ?>">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none"></div>
+          </div>
 
-    <!-- Fondo difuminado para rellenar los espacios vacíos -->
-    <div class="absolute inset-0 bg-cover bg-center filter blur-md opacity-50 scale-110" style="background-image: url('<?= base_url('Coyote.jpeg') ?>');"></div>
+          <!-- CONTROLES DE NAVEGACIÓN -->
+          <button id="prevSlide" aria-label="ANTERIOR" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-8 sm:w-9 h-8 sm:h-9 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center text-white hover:text-white hover:bg-smart-red hover:border-smart-red smart-transition backdrop-blur-md z-20">
+            <span class="material-symbols-outlined text-lg sm:text-xl">chevron_left</span>
+          </button>
+          <button id="nextSlide" aria-label="SIGUIENTE" class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-8 sm:w-9 h-8 sm:h-9 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center text-white hover:text-white hover:bg-smart-red hover:border-smart-red smart-transition backdrop-blur-md z-20">
+            <span class="material-symbols-outlined text-lg sm:text-xl">chevron_right</span>
+          </button>
 
-    <!-- Imagen principal agrandada (cambiamos h-full por h-[115%] o ajustamos la escala) -->
-    <img alt="Visualización del Panel" class="relative z-10 h-[230%] w-auto object-contain group-hover:scale-105 smart-transition" src="<?= base_url('Coyote.jpeg') ?>">
-
-    <!-- Gradiente oscuro encima -->
-    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none"></div>
-</div>
-
-            <!-- CONTROLES DE NAVEGACIÓN -->
-            <button id="prevSlide" aria-label="Anterior" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-8 sm:w-9 h-8 sm:h-9 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center text-white hover:text-white hover:bg-smart-red hover:border-smart-red smart-transition backdrop-blur-md">
-              <span class="material-symbols-outlined text-lg sm:text-xl">chevron_left</span>
-            </button>
-            <button id="nextSlide" aria-label="Siguiente" class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-8 sm:w-9 h-8 sm:h-9 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center text-white hover:text-white hover:bg-smart-red hover:border-smart-red smart-transition backdrop-blur-md">
-              <span class="material-symbols-outlined text-lg sm:text-xl">chevron_right</span>
-            </button>
-
-            <!-- FOOTER SOBRE LA IMAGEN -->
-            <div class="absolute bottom-3 sm:bottom-4 left-0 right-0 px-4 sm:px-6 flex items-center justify-between z-20">
-              <p class="text-xs font-semibold text-white/90 hidden sm:block">Ciudad Inteligente</p>
-              
-              <!-- PUNTOS DEL CARRUSEL -->
-              <div class="flex items-center gap-1.5 mx-auto sm:mx-0">
-                <span class="w-5 sm:w-6 h-1.5 rounded-full bg-smart-red"></span>
-                <span class="w-1.5 h-1.5 rounded-full bg-white/40"></span>
-                <span class="w-1.5 h-1.5 rounded-full bg-white/40"></span>
-              </div>
+          <!-- FOOTER SOBRE LA IMAGEN -->
+          <div class="absolute bottom-3 sm:bottom-4 left-0 right-0 px-4 sm:px-6 flex items-center justify-between z-20 pointer-events-none">
+            <p class="text-xs font-semibold text-white/90 hidden sm:block uppercase">CIUDAD INTELIGENTE</p>
+            <div class="flex items-center gap-1.5 mx-auto sm:mx-0">
+              <span class="w-5 sm:w-6 h-1.5 rounded-full bg-smart-red"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-white/40"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-white/40"></span>
             </div>
-
           </div>
 
         </div>
@@ -299,9 +297,15 @@
               <span class="material-symbols-outlined text-xl sm:text-2xl flex items-center justify-center">grid_view</span>
             </div>
             <div class="min-w-0">
-              <p class="text-[10px] sm:text-[11px] text-smart-text-muted uppercase font-bold truncate">Estado Módulos</p>
-              <p class="text-xs sm:text-sm font-bold text-white mt-0.5 truncate">
-                <?= ($isLoggedIn && session()->get('role') === 'admin') ? '4 Activos' : '3 Activos' ?>
+              <p class="text-[10px] sm:text-[11px] text-smart-text-muted uppercase font-bold truncate">ESTADO MÓDULOS</p>
+              <p class="text-xs sm:text-sm font-bold text-white mt-0.5 truncate uppercase">
+                <?php 
+                  if (!$isLoggedIn) {
+                      echo '0 ACTIVOS';
+                  } else {
+                      echo ($userRole === 1) ? '4 ACTIVOS' : '3 ACTIVOS';
+                  }
+                ?>
               </p>
             </div>
           </div>
@@ -311,8 +315,8 @@
               <span class="material-symbols-outlined text-xl sm:text-2xl flex items-center justify-center">shield</span>
             </div>
             <div class="min-w-0">
-              <p class="text-[10px] sm:text-[11px] text-smart-text-muted uppercase font-bold truncate">Seguridad</p>
-              <p class="text-xs sm:text-sm font-bold text-white mt-0.5 truncate">Protegido</p>
+              <p class="text-[10px] sm:text-[11px] text-smart-text-muted uppercase font-bold truncate">SEGURIDAD</p>
+              <p class="text-xs sm:text-sm font-bold text-white mt-0.5 truncate uppercase">PROTEGIDO</p>
             </div>
           </div>
 
@@ -321,8 +325,8 @@
               <span class="material-symbols-outlined text-xl sm:text-2xl flex items-center justify-center">sync</span>
             </div>
             <div class="min-w-0">
-              <p class="text-[10px] sm:text-[11px] text-smart-text-muted uppercase font-bold truncate">Sincronización</p>
-              <p class="text-xs sm:text-sm font-bold text-white mt-0.5 truncate">Actualizado</p>
+              <p class="text-[10px] sm:text-[11px] text-smart-text-muted uppercase font-bold truncate">SINCRONIZACIÓN</p>
+              <p class="text-xs sm:text-sm font-bold text-white mt-0.5 truncate uppercase">ACTUALIZADO</p>
             </div>
           </div>
 
@@ -338,32 +342,29 @@
     <div id="authAlertModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
       <div class="bg-smart-card border border-smart-border rounded-2xl max-w-md w-full overflow-hidden shadow-2xl transform transition-all animate-in fade-in zoom-in duration-200">
         
-        <!-- ENCABEZADO -->
         <div class="bg-smart-input-bg border-b border-smart-border px-6 py-4 flex items-center gap-3">
           <div class="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 flex-shrink-0">
             <span class="material-symbols-outlined text-xl flex items-center justify-center">lock</span>
           </div>
           <div>
-            <h3 class="text-sm font-bold uppercase tracking-wider text-white">Acceso Restringido</h3>
-            <p class="text-[11px] text-smart-text-muted">Autenticación requerida</p>
+            <h3 class="text-sm font-bold uppercase tracking-wider text-white">ACCESO RESTRINGIDO</h3>
+            <p class="text-[11px] text-smart-text-muted uppercase">AUTENTICACIÓN REQUERIDA</p>
           </div>
         </div>
 
-        <!-- CUERPO DEL MODAL -->
         <div class="p-6 text-center">
-          <p class="text-sm text-gray-300 leading-relaxed">
-            ¡Hola! Inicia sesión para ingresar a las funcionalidades y módulos protegidos del sistema.
+          <p class="text-sm text-gray-300 leading-relaxed uppercase">
+            ¡HOLA! INICIA SESIÓN PARA INGRESAR A LAS FUNCIONALIDADES Y MÓDULOS PROTEGIDOS DEL SISTEMA.
           </p>
         </div>
 
-        <!-- FOOTER / BOTONES -->
         <div class="bg-smart-bg px-6 py-4 border-t border-smart-border flex flex-col sm:flex-row items-center justify-end gap-2">
-          <button type="button" onclick="closeAuthModal()" class="w-full sm:w-auto px-4 py-2 rounded-lg border border-smart-border text-xs font-semibold text-smart-text-muted hover:text-white hover:bg-smart-input-bg transition-colors">
-            Regresar al Inicio
+          <button type="button" onclick="closeAuthModal()" class="w-full sm:w-auto px-4 py-2 rounded-lg border border-smart-border text-xs font-semibold text-smart-text-muted hover:text-white hover:bg-smart-input-bg transition-colors uppercase">
+            REGRESAR AL INICIO
           </button>
-          <a href="<?= base_url('/login') ?>" class="w-full sm:w-auto px-4 py-2 rounded-lg bg-smart-red hover:bg-red-700 text-white text-xs font-bold text-center transition-colors shadow-lg shadow-smart-red/20 flex items-center justify-center gap-1.5">
+          <a href="<?= base_url('/login') ?>" class="w-full sm:w-auto px-4 py-2 rounded-lg bg-smart-red hover:bg-red-700 text-white text-xs font-bold text-center transition-colors shadow-lg shadow-smart-red/20 flex items-center justify-center gap-1.5 uppercase">
             <span class="material-symbols-outlined text-base">login</span>
-            <span>Iniciar Sesión</span>
+            <span>INICIAR SESIÓN</span>
           </a>
         </div>
 
@@ -401,7 +402,6 @@
     mobileMenuBtn.addEventListener('click', toggleMobileMenu);
     mobileOverlay.addEventListener('click', toggleMobileMenu);
 
-    // Ocultar backdrop al pasar a pantalla de escritorio
     window.addEventListener('resize', () => {
       if (window.innerWidth >= 768) {
         mobileOverlay.classList.add('hidden');

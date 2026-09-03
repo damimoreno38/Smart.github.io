@@ -12,6 +12,7 @@ class AuthFilter implements FilterInterface
     {
         $session = session();
 
+        // * VERIFICA SI EL USUARIO NO HA INICIADO SESIÓN PARA REDIRIGIRLO AL INICIO
         if (!$session->get('isLoggedIn') && !$session->get('logged_in')) {
             return redirect()->to('/')->with('show_auth_modal', true);
         }
@@ -19,5 +20,6 @@ class AuthFilter implements FilterInterface
 
     public function after(RequestInterface $request, ResponseInterface $response, $arguments = null)
     {
+        // * MÉTODO VACÍO QUE SE EJECUTA DESPUÉS DE LA PETICIÓN
     }
 }

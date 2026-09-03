@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html class="dark" lang="es">
 <head>
+  <!-- CONFIGURACIÓN BÁSICA DEL DOCUMENTO Y SOPORTE DE IDIOMA -->
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
-  <title>Iniciar Sesión - Proyecto SMART</title>
+  <title>INICIAR SESIÓN - PROYECTO SMART</title>
   
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -41,20 +42,20 @@
       <div class="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-smart-red/10 border border-smart-red/30 text-smart-red mb-2">
         <span class="material-symbols-outlined text-3xl">lock</span>
       </div>
-      <h1 class="text-2xl font-extrabold tracking-tight uppercase">Iniciar Sesión</h1>
-      <p class="text-xs text-smart-text-muted">Ingresa tu CURP y contraseña para acceder al Proyecto SMART</p>
+      <h1 class="text-2xl font-extrabold tracking-tight uppercase">INICIAR SESIÓN</h1>
+      <p class="text-xs text-smart-text-muted uppercase">INGRESA TU CURP Y CONTRASEÑA PARA ACCEDER AL PROYECTO SMART</p>
     </div>
 
     <!-- MENSAJES DE ERROR / ÉXITO (FLASH DATA) -->
     <?php if (session()->getFlashdata('msg')): ?>
-      <div class="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold flex items-center gap-2">
+      <div class="p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-xs font-semibold flex items-center gap-2 uppercase">
         <span class="material-symbols-outlined text-lg">error</span>
         <span><?= session()->getFlashdata('msg') ?></span>
       </div>
     <?php endif; ?>
 
     <?php if (session()->getFlashdata('success')): ?>
-      <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold flex items-center gap-2">
+      <div class="p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-semibold flex items-center gap-2 uppercase">
         <span class="material-symbols-outlined text-lg">check_circle</span>
         <span><?= session()->getFlashdata('success') ?></span>
       </div>
@@ -86,8 +87,8 @@
         <!-- CAMPO CONTRASEÑA -->
         <div class="space-y-1.5">
           <div class="flex justify-between items-center">
-            <label for="password" class="text-xs font-bold uppercase tracking-wider text-smart-text-muted">Contraseña</label>
-            <a href="<?= base_url('login/forgot-password') ?>" class="text-[11px] text-smart-red hover:underline font-medium">¿Olvidaste tu contraseña?</a>
+            <label for="password" class="text-xs font-bold uppercase tracking-wider text-smart-text-muted">CONTRASEÑA</label>
+            <a href="<?= base_url('login/forgot-password') ?>" class="text-[11px] text-smart-red hover:underline font-medium uppercase">¿OLVIDASTE TU CONTRASEÑA?</a>
           </div>
           <div class="relative">
             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-smart-text-muted text-lg">key</span>
@@ -107,7 +108,7 @@
           type="submit" 
           class="w-full py-2.5 px-4 rounded-xl bg-smart-red hover:bg-red-700 text-white font-bold text-xs uppercase tracking-wider shadow-lg shadow-smart-red/20 transition-all flex items-center justify-center gap-2 mt-2"
         >
-          <span>Ingresar</span>
+          <span>INGRESAR</span>
           <span class="material-symbols-outlined text-base">login</span>
         </button>
 
@@ -115,9 +116,9 @@
     </div>
 
     <!-- ENLACE A REGISTRO -->
-    <p class="text-center text-xs text-smart-text-muted">
-      ¿No tienes una cuenta? 
-      <a href="<?= base_url('usuarios/nuevo') ?>" class="text-white font-bold hover:underline">Regístrate aquí</a>
+    <p class="text-center text-xs text-smart-text-muted uppercase">
+      ¿NO TIENES UNA CUENTA? 
+      <a href="<?= base_url('usuarios/nuevo') ?>" class="text-white font-bold hover:underline uppercase">REGÍSTRATE AQUÍ</a>
     </p>
 
   </div>

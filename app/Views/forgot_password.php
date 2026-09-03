@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- CONFIGURACIÓN BÁSICA DEL DOCUMENTO Y SOPORTE DE IDIOMA -->
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>Recuperar Contraseña - Proyecto Smart</title>
+  <title>RECUPERAR CONTRASEÑA - PROYECTO SMART</title>
 
   <!-- TAILWIND CSS DESDE CDN -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -93,26 +94,26 @@
         
         <div class="flex flex-col mb-6" data-purpose="title-section">
           <div class="flex items-center justify-between">
-            <h2 class="text-2xl font-bold">Recuperar Contraseña</h2>
+            <h2 class="text-2xl font-bold">RECUPERAR CONTRASEÑA</h2>
             <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
               <path d="M7 11V7a5 5 0 0110 0v4"></path>
             </svg>
           </div>
-          <p class="text-xs text-smart-text-muted mt-2">
-            Ingresa tu CURP y correo electrónico para enviarte las instrucciones de restablecimiento.
+          <p class="text-xs text-smart-text-muted mt-2 uppercase">
+            INGRESA TU CURP Y CORREO ELECTRÓNICO PARA ENVIARTE LAS INSTRUCCIONES DE RESTABLECIMIENTO.
           </p>
         </div>
 
         <!-- ALERTAS DINÁMICAS PHP -->
         <?php if(session()->getFlashdata('msg')):?>
-          <div class="mb-6 p-3 rounded-md alert-codeigniter-danger text-sm text-center font-medium">
+          <div class="mb-6 p-3 rounded-md alert-codeigniter-danger text-sm text-center font-medium uppercase">
             <?= session()->getFlashdata('msg') ?>
           </div>
         <?php endif;?>
 
         <?php if(session()->getFlashdata('success')):?>
-          <div class="mb-6 p-3 rounded-md alert-codeigniter-success text-sm text-center font-medium">
+          <div class="mb-6 p-3 rounded-md alert-codeigniter-success text-sm text-center font-medium uppercase">
             <?= session()->getFlashdata('success') ?>
           </div>
         <?php endif;?>
@@ -122,12 +123,12 @@
           <?= csrf_field() ?>
           
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-semibold tracking-wide" for="curp">CURP</label>
+            <label class="text-sm font-semibold tracking-wide uppercase" for="curp">CURP</label>
             <input 
-              class="input-smart-custom rounded-md py-3 px-4 placeholder-smart-text-muted w-full text-sm" 
+              class="input-smart-custom rounded-md py-3 px-4 placeholder-smart-text-muted w-full text-sm uppercase" 
               id="curp" 
               name="curp" 
-              placeholder="Ingresa tu CURP" 
+              placeholder="INGRESA TU CURP" 
               required 
               maxlength="18" 
               type="text"
@@ -135,7 +136,7 @@
           </div>
 
           <div class="flex flex-col gap-2">
-            <label class="text-sm font-semibold tracking-wide" for="email">Correo Electrónico</label>
+            <label class="text-sm font-semibold tracking-wide uppercase" for="email">CORREO ELECTRÓNICO</label>
             <input 
               class="input-smart-custom rounded-md py-3 px-4 placeholder-smart-text-muted w-full text-sm" 
               id="email" 
@@ -147,18 +148,18 @@
           </div>
 
           <div class="flex justify-center mt-4">
-            <button class="font-bold py-3 px-8 rounded-md w-full max-w-[250px] btn-smart-glow" type="submit">
-              Enviar Enlace
+            <button class="font-bold py-3 px-8 rounded-md w-full max-w-[250px] btn-smart-glow uppercase" type="submit">
+              ENVIAR ENLACE
             </button>
           </div>
         </form>
 
         <div class="mt-8 text-center" data-purpose="footer-link">
-          <a class="text-sm text-white hover:text-smart-red transition-colors font-medium inline-flex items-center gap-2" href="<?= base_url('login') ?>">
+          <a class="text-sm text-white hover:text-smart-red transition-colors font-medium inline-flex items-center gap-2 uppercase" href="<?= base_url('login') ?>">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
             </svg>
-            Volver a Iniciar Sesión
+            VOLVER A INICIAR SESIÓN
           </a>
         </div>
 
@@ -167,7 +168,7 @@
 
     <!-- COLUMNA DERECHA: IMAGEN -->
     <div class="hidden md:block md:w-1/2 bg-gray-900">
-      <img alt="Decorative Background" class="w-full h-full object-cover" src="<?= base_url('CIUDAD1.jpg') ?>"/>
+      <img alt="DECORATIVE BACKGROUND" class="w-full h-full object-cover" src="<?= base_url('CIUDAD1.jpg') ?>"/>
     </div>
 
   </div>

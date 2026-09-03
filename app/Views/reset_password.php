@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+  <!-- CONFIGURACIÓN BÁSICA DEL DOCUMENTO Y SOPORTE DE IDIOMA -->
   <meta charset="utf-8"/>
   <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-  <title>Nueva Contraseña - SMART</title>
+  <title>NUEVA CONTRASEÑA - PROYECTO SMART</title>
 
   <!-- TAILWIND CSS DESDE CDN -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
@@ -95,19 +96,19 @@
             <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
           </svg>
         </div>
-        <h2 class="text-2xl font-bold">Nueva Contraseña</h2>
-        <p class="text-xs text-smart-text-muted mt-1">Ingresa tu nueva clave de acceso para actualizarla.</p>
+        <h2 class="text-2xl font-bold uppercase">NUEVA CONTRASEÑA</h2>
+        <p class="text-xs text-smart-text-muted mt-1 uppercase">INGRESA TU NUEVA CLAVE DE ACCESO PARA ACTUALIZARLA.</p>
       </div>
 
       <!-- ALERTAS DINÁMICAS PHP -->
       <?php if(session()->getFlashdata('msg')):?>
-        <div class="mb-6 p-3 rounded-md alert-codeigniter-danger text-sm text-center font-medium">
+        <div class="mb-6 p-3 rounded-md alert-codeigniter-danger text-sm text-center font-medium uppercase">
           <?= session()->getFlashdata('msg') ?>
         </div>
       <?php endif;?>
 
       <?php if(session()->getFlashdata('success')):?>
-        <div class="mb-6 p-3 rounded-md alert-codeigniter-success text-sm text-center font-medium">
+        <div class="mb-6 p-3 rounded-md alert-codeigniter-success text-sm text-center font-medium uppercase">
           <?= session()->getFlashdata('success') ?>
         </div>
       <?php endif;?>
@@ -121,12 +122,12 @@
 
         <!-- CAMPO 1: NUEVA CONTRASEÑA -->
         <div class="flex flex-col gap-2">
-          <label class="text-sm font-semibold tracking-wide" for="password">Nueva Contraseña</label>
+          <label class="text-sm font-semibold tracking-wide uppercase" for="password">NUEVA CONTRASEÑA</label>
           <input 
             class="input-smart-custom rounded-md py-3 px-4 placeholder-smart-text-muted w-full text-sm" 
             id="password" 
             name="password" 
-            placeholder="Mínimo 6 caracteres" 
+            placeholder="MÍNIMO 6 CARACTERES" 
             required 
             minlength="6"
             type="password"
@@ -135,12 +136,12 @@
 
         <!-- CAMPO 2: CONFIRMAR CONTRASEÑA -->
         <div class="flex flex-col gap-2">
-          <label class="text-sm font-semibold tracking-wide" for="confirm_password">Confirmar Contraseña</label>
+          <label class="text-sm font-semibold tracking-wide uppercase" for="confirm_password">CONFIRMAR CONTRASEÑA</label>
           <input 
             class="input-smart-custom rounded-md py-3 px-4 placeholder-smart-text-muted w-full text-sm" 
             id="confirm_password" 
             name="confirm_password" 
-            placeholder="Repite tu nueva contraseña" 
+            placeholder="REPITE TU NUEVA CONTRASEÑA" 
             required 
             minlength="6"
             type="password"
@@ -148,15 +149,15 @@
         </div>
 
         <div class="flex justify-center mt-2">
-          <button class="font-bold py-3 px-8 rounded-md w-full btn-smart-glow" type="submit">
-            Cambiar Contraseña
+          <button class="font-bold py-3 px-8 rounded-md w-full btn-smart-glow uppercase" type="submit">
+            CAMBIAR CONTRASEÑA
           </button>
         </div>
       </form>
 
       <div class="mt-8 text-center" data-purpose="footer-link">
-        <p class="text-sm text-white font-medium">
-          ¿Recordaste tu clave? <a class="text-white hover:text-smart-red transition-colors font-semibold" href="<?= base_url('login') ?>">Volver al Login</a>
+        <p class="text-sm text-white font-medium uppercase">
+          ¿RECORDASTE TU CLAVE? <a class="text-white hover:text-smart-red transition-colors font-semibold uppercase" href="<?= base_url('login') ?>">VOLVER AL LOGIN</a>
         </p>
       </div>
 
