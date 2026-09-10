@@ -33,6 +33,7 @@ $routes->post('usuarios/guardar', 'Usuarios::guardar'); // * RUTA ALTERNATIVA PA
 $routes->group('', ['filter' => AuthFilter::class], static function ($routes) {
     $routes->get('mapa', 'Mapa::index'); // * MUESTRA EL MAPA SOLO PARA USUARIOS AUTENTICADOS
     $routes->get('perfil', 'Perfil::index'); // * PERFIL PROTEGIDO
+    $routes->post('perfil/guardar', 'Perfil::guardar'); // * GUARDA DATOS DEL PERFIL PROTEGIDO
     $routes->get('reportes', 'Reportes::index'); // * REPORTES PROTEGIDO
 });
 

@@ -8,6 +8,9 @@
   <!-- TAILWIND CSS -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
 
+  <!-- LIBRERÍA PARA MODELOS 3D (.GLB / .GLTF) -->
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
   <!-- FUENTES EXTERNAS Y MATERIAL ICONS -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -134,7 +137,7 @@
         <svg class="w-7 h-7 sm:w-8 sm:h-8 text-smart-red flex-shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24">
           <circle cx="12" cy="12" r="10"></circle>
           <line x1="2" x2="22" y1="12" y2="12"></line>
-          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z"></path>
           <path d="M12 2v20"></path>
         </svg>
         <div class="flex flex-col">
@@ -250,35 +253,53 @@
           </div>
         </div>
 
-        <!-- TARJETA VISUALIZADORA (CARRUSEL) -->
+        <!-- TARJETA VISUALIZADORA (VISOR 3D INTERACTIVO) -->
         <div class="bg-smart-card border border-smart-border rounded-2xl overflow-hidden shadow-smart-card hover:border-smart-border-hover smart-transition group relative">
           
           <!-- ENCABEZADO DE LA TARJETA -->
           <div class="px-4 sm:px-5 py-3 border-b border-smart-border/60 bg-smart-input-bg/50 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 min-w-0">
-              <span class="w-2.5 h-2.5 rounded-full bg-smart-red flex-shrink-0"></span>
-              <span class="text-xs font-bold uppercase tracking-wider text-white truncate">VISTA PREVIA DEL MÓDULO</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-smart-red flex-shrink-0 animate-pulse"></span>
+              <span class="text-xs font-bold uppercase tracking-wider text-white truncate">VISUALIZACIÓN 3D </span>
             </div>
             <span class="text-[10px] sm:text-[11px] text-smart-text-muted bg-smart-bg px-2 sm:px-2.5 py-1 rounded-md border border-smart-border flex-shrink-0 uppercase">NEZAYORK</span>
           </div>
 
-          <!-- CONTENEDOR VISUAL DE LA IMAGEN -->
-          <div class="relative w-full aspect-video sm:aspect-[21/9] bg-smart-bg flex items-center justify-center overflow-hidden group">
-            <div class="absolute inset-0 bg-cover bg-center filter blur-md opacity-50 scale-110" style="background-image: url('<?= base_url('Coyote.jpeg') ?>');"></div>
-            <img alt="VISUALIZACIÓN DEL PANEL" class="relative z-10 h-[230%] w-auto object-contain group-hover:scale-105 smart-transition" src="<?= base_url('Coyote.jpeg') ?>">
-            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/20 pointer-events-none"></div>
+          <!-- CONTENEDOR VISUAL DEL MODELO 3D -->
+          <div class="relative w-full h-[350px] sm:h-[450px] bg-[#121212] flex items-center justify-center overflow-hidden">
+            
+            <model-viewer 
+              src="<?= base_url('modelo2.glb') ?>" 
+              alt="VISUALIZACIÓN DEL MODELO 3D SMART" 
+              auto-rotate 
+              camera-controls 
+              shadow-intensity="1"
+              exposure="1"
+              touch-action="pan-y"
+              style="width: 100%; height: 100%; background-color: #121212;"
+              class="z-10">
+              
+              <!-- Cartel de carga si tarda en procesar -->
+              <div slot="poster" class="flex items-center justify-center h-full text-smart-text-muted text-xs uppercase font-bold tracking-wider">
+                CARGANDO MODELO 3D...
+              </div>
+
+            </model-viewer>
+
+            <!-- Degradado para resaltar la interfaz -->
+            <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent pointer-events-none z-20"></div>
           </div>
 
           <!-- CONTROLES DE NAVEGACIÓN -->
-          <button id="prevSlide" aria-label="ANTERIOR" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-8 sm:w-9 h-8 sm:h-9 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center text-white hover:text-white hover:bg-smart-red hover:border-smart-red smart-transition backdrop-blur-md z-20">
+          <button id="prevSlide" aria-label="ANTERIOR" class="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 w-8 sm:w-9 h-8 sm:h-9 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center text-white hover:text-white hover:bg-smart-red hover:border-smart-red smart-transition backdrop-blur-md z-30">
             <span class="material-symbols-outlined text-lg sm:text-xl">chevron_left</span>
           </button>
-          <button id="nextSlide" aria-label="SIGUIENTE" class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-8 sm:w-9 h-8 sm:h-9 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center text-white hover:text-white hover:bg-smart-red hover:border-smart-red smart-transition backdrop-blur-md z-20">
+          <button id="nextSlide" aria-label="SIGUIENTE" class="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 w-8 sm:w-9 h-8 sm:h-9 rounded-xl bg-black/60 border border-white/10 flex items-center justify-center text-white hover:text-white hover:bg-smart-red hover:border-smart-red smart-transition backdrop-blur-md z-30">
             <span class="material-symbols-outlined text-lg sm:text-xl">chevron_right</span>
           </button>
 
-          <!-- FOOTER SOBRE LA IMAGEN -->
-          <div class="absolute bottom-3 sm:bottom-4 left-0 right-0 px-4 sm:px-6 flex items-center justify-between z-20 pointer-events-none">
+          <!-- FOOTER SOBRE EL MODELO -->
+          <div class="absolute bottom-3 sm:bottom-4 left-0 right-0 px-4 sm:px-6 flex items-center justify-between z-30 pointer-events-none">
             <p class="text-xs font-semibold text-white/90 hidden sm:block uppercase">CIUDAD INTELIGENTE</p>
             <div class="flex items-center gap-1.5 mx-auto sm:mx-0">
               <span class="w-5 sm:w-6 h-1.5 rounded-full bg-smart-red"></span>

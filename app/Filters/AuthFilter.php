@@ -12,8 +12,8 @@ class AuthFilter implements FilterInterface
     {
         $session = session();
 
-        // * VERIFICA SI EL USUARIO NO HA INICIADO SESIÓN PARA REDIRIGIRLO AL INICIO
-        if (!$session->get('isLoggedIn') && !$session->get('logged_in')) {
+        // * VERIFICA SI EL USUARIO NO TIENE LA SESIÓN ACTIVA
+        if (! $session->get('isLoggedIn')) {
             return redirect()->to('/')->with('show_auth_modal', true);
         }
     }

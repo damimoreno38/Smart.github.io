@@ -13,7 +13,15 @@ class UsuarioModel extends Model
     protected $primaryKey       = 'ID_usuario';
     
     // * CAMPOS PERMITIDOS PARA INSERTAR O ACTUALIZAR DATOS
-    protected $allowedFields    = ['curp', 'password', 'ROLES_ID_roles'];
+    protected $allowedFields    = [
+        'curp', 
+        'password', 
+        'ROLES_ID_roles', 
+        'Nombre', 
+        'Area', 
+        'Correo', 
+        'foto'
+    ];
 
     // * MÉTODO PARA OBTENER TODOS LOS USUARIOS JUNTO CON EL NOMBRE DE SU ROL
     public function obtenerUsuariosConRelaciones()

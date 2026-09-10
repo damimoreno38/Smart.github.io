@@ -1,0 +1,2 @@
+public/uploads/perfiles/*
+!public/uploads/perfiles/.gitkeep
