@@ -225,6 +225,41 @@
             font-size: 14px;
         }
 
+        .swal2-popup{
+            background: #2b2b2b !important;
+            color: white !important;
+        }
+
+        .swal2-title,
+        .swal2-html-container{
+            color: white !important;
+        }
+
+        .swal2-confirm{
+            background: #6b6b6b !important;
+        }
+
+        .swal2-cancel{
+            background: #444 !important;
+        }
+
+        .btn-pdf{
+        background: #5e5959;
+        color: white;
+        border: none;
+        padding: 10px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 15px;
+        font-weight: bold;
+        transition: 0.5s;
+    }
+        .btn-pdf:hover{
+        background: #7a7474;
+        transform: translateY(-2px);
+    }
+
+
     </style>
 </head>
 <body>
@@ -256,15 +291,35 @@
                 <span id="badgePendientes" class="badge">0</span>
             </button>
 
+            <button class="pendientes" onclick="generarReporte()">
+                Agregar reporte
+            </button>
+
+            <button class="pendientes" onclick="mostrarReportes()">
+                Reportes
+            </button>
+
             <button onclick="volverMapa()">
                 Volver al mapa
             </button>
         </div>
 
+        <div id="registro"></div>
+
         <div id="map"></div>
-    
+
     <div id="tablaAtendidos" style="display:none; flex:1;">
+
     <h2 style="color:white;">TABLA DE DETALLES</h2>
+
+    <button
+        id="btnDescargarPDF"
+        onclick="descargarPDF()"
+        class="btn-pdf"
+        style="display:none;">
+        📄 Descargar PDF
+        </button>
+        traca
 
     <div class="contenedor-buscador">
         <input
@@ -273,16 +328,19 @@
              placeholder="Buscar por ID, problema, ubicación o estado..."
             >
         </div>
-            Mostrar más líneas
+        traca
 
     <table id="tablaDetalles" style="width:100%; background:white; border-collapse:collapse;">
     <thead>
     <tr>
+        
+    <tr id="encabezadoTabla">
 
      <th>ID</th>
      <th>Problema</th>
      <th>Ubicación</th>
      <th>Estado</th>
+     <th>Eliminar</th>
 
      </tr>
      </thead>
@@ -292,6 +350,8 @@
     </table>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
@@ -309,6 +369,11 @@
         function guardarEstado(punto, color) {
             localStorage.setItem(punto, color);
             actualizarBurbujas();
+
+            if(vistaActual !== ""){
+            actualizaTabla();
+
+        }
         }
 
         function volverMapa() {
@@ -333,99 +398,525 @@
             });
         })
 
+        function mostrarReportes() {
+        document.getElementById("map").style.display = "none";
+        document.getElementById("tablaAtendidos").style.display = "block";
+        document.getElementById("btnDescargarPDF").style.display = "block";
+        document.getElementById("encabezadoTabla").innerHTML = `
+        <th>ID</th>
+        <th>Problema</th>
+        <th>Ubicasion</th>
+        <th>Estado</th>
+        <th>Hora</th>
+        <th>Fecha</th>
+        `;
+
+        let html ="";
+        const reportesManuales =
+        JSON.parse(localStorage.getItem("reportesManuales")) || [];
+
+        reportesManuales.forEach(reporte=>{
+
+            let textoEstado = "No atendido";
+
+            if(reporte.estado == "green"){
+                textoEstado = "Atendido";
+            }
+
+            if(reporte.estado == "yellow"){
+                textoEstado = "Pendiente"
+            }
+
+            html +=`
+            <tr>
+            <td>${reporte.id}</td>
+            <td>${reporte.nombre}</td>
+            <td>${reporte.ubicacion}</td>
+            <td>${textoEstado}</td>
+            <td>${reporte.hora||"-"}</td>
+            <td>${reporte.fecha||"-"}</td>
+            </tr>`;
+
+        });
+        document.getElementById("contenidoTabla").innerHTML = html;
+    }
+
+    function descargarPDF() {
+
+    const { jsPDF } = window.jspdf;
+
+    const doc = new jsPDF();
+
+    // Título
+    doc.setFontSize(18);
+    doc.setTextColor(50, 50, 50);
+
+    doc.text("SMART WEB", 105, 20, {
+        align: "center"
+    });
+
+    doc.setFontSize(14);
+
+    doc.text("Reporte de problemas", 105, 30, {
+        align: "center"
+    });
+
+    // Obtener reportes
+    const reportesManuales =
+        JSON.parse(localStorage.getItem("reportesManuales")) || [];
+
+    // Convertir los datos para PDF
+    const datos = reportesManuales.map(reporte => {
+
+        let estado = "No atendido";
+
+        if (reporte.estado === "green") {
+            estado = "Atendido";
+        }
+
+        if (reporte.estado === "yellow") {
+            estado = "Pendiente";
+        }
+
+        return [
+            reporte.id,
+            reporte.nombre,
+            reporte.ubicacion,
+            estado,
+            reporte.hora,
+            reporte.fecha
+        ];
+    });
+
+    // Crear tabla
+    doc.autoTable({
+        head: [
+            ["ID", "Problema", "Ubicación", "Estado", "Hora", "Fecha" ]
+        ],
+
+        body: datos,
+
+        startY: 40,
+
+        theme: "grid",
+
+        headStyles: {
+            fillColor: [94, 89, 89],
+            textColor: 255,
+            fontStyle: "bold"
+        },
+
+        styles: {
+            fontSize: 10,
+            cellPadding: 4
+        },
+
+        alternateRowStyles: {
+            fillColor: [240, 240, 240]
+        }
+    });
+
+    // Fecha
+    const fecha = new Date().toLocaleDateString();
+
+    doc.setFontSize(9);
+
+    doc.text(
+        "Fecha de generación: " + fecha,
+        14,
+        doc.lastAutoTable.finalY + 15
+    );
+
+    // Descargar
+    doc.save("Reporte_SMART_WEB.pdf");
+}
+
+
         const reportes = [
             {
                 id: 1,
                 nombre: "Drenaje en mal estado",
                 ubicacion: "Alcalcerio y Quinta Avenida"
             },
-            {
-                id: 2,
-                nombre: "Falla de luz",
-                ubicacion: "Ixtapan y Coatepec"
-            },
-            {
-                id: 3,
-                nombre: "Inundacion detectada",
-                ubicacion: "Ixtapan y Coatepec"
-            },
-            {
-                id: 4,
-                nombre: "Tope en mal estado",
-                ubicacion: "Basilica de Guadalupe"
-            },
-            {
-                id: 5,
-                nombre: "Poste descompuesto",
-                ubicacion: "Flores Mexicanas"
-            },
-            {
-                id: 6,
-                nombre: "Banqueta en mal estado",
-                ubicacion: "Glorieta de Colon"
-            }
         ];
 
         function mostrarAtendidos() {
-            vistaActual = "green";
-            actualizaTabla();
-        }
+
+    document.getElementById("btnDescargarPDF").style.display = "none";
+    vistaActual = "green";
+    actualizaTabla();
+}
 
         function mostrarSinAtender() {
-            vistaActual = "red";
-            actualizaTabla();
-        }
+
+    document.getElementById("btnDescargarPDF").style.display = "none";
+    vistaActual = "red";
+    actualizaTabla();
+}
 
         function mostrarPendientes() {
-            vistaActual = "yellow";
-            actualizaTabla();
+
+    document.getElementById("btnDescargarPDF").style.display = "none";
+    vistaActual = "yellow";
+    actualizaTabla();
+}
+
+        const puntos = {};
+
+        let modoAgregar = false;
+
+        function generarReporte(){
+            modoAgregar = true;
+
+            Swal.fire({
+                icon: "info",
+                title: "Agregar reporte",
+                text: "Haz clic en el mapa para seleccionar la ubicación."
+            });
         }
 
-        function actualizaTabla() {
+        function cambiarEstadoPunto(punto, id, color) {
 
-            document.getElementById("map").style.display = "none";
-            document.getElementById("tablaAtendidos").style.display = "block";
-            
-            let html = "";
-            reportes.forEach(reporte => {
-                const estado = localStorage.getItem("punto" + reporte.id);
+        if (!punto) return;
 
-                if (estado === vistaActual) {
+    punto.setStyle({
+        color: color,
+        fillColor: color
+    });
+    localStorage.setItem(id + "_estado", color);
 
-                let textoEstado = "";
-                let colorTexto = "";
+    let reportesManuales =
+        JSON.parse(localStorage.getItem("reportesManuales")) || [];
 
-                if (estado === "green") {
-                   textoEstado = "Atendido";
-                   colorTexto = "green";
-                }
+    const reporte = reportesManuales.find(r => r.id === id);
+    if (reporte) {
+        reporte.estado = color;
 
-                if (estado === "red") {
-                   textoEstado = "No Atendido";
-                   colorTexto = "red";
-                }
+        localStorage.setItem(
+            "reportesManuales",
+            JSON.stringify(reportesManuales)
+        );
+    }
 
-                if (estado === "yellow") {
-                   textoEstado = "Pendiente";
-                   colorTexto = "#d4a000";
-                }
+        actualizarBurbujas();
+    }
 
-                html += `
-                <tr>
+    function crearPopup(punto, reporte) {
+    punto.bindPopup(`
+        
+
+        <button onclick="
+            cambiarEstadoPunto(
+            puntos['${reporte.id}'],
+            '${reporte.id}',
+            'green'
+            )
+        ">
+            Atender
+        </button>
+
+        <button onclick="
+            cambiarEstadoPunto(
+            puntos['${reporte.id}'],
+            '${reporte.id}',
+            'yellow'
+        )
+        ">
+            Pendiente
+        </button>
+
+        <button onclick="
+            cambiarEstadoPunto(
+            puntos['${reporte.id}'],
+            '${reporte.id}',
+            'red'
+        )
+        ">
+            No Atendido
+        </button>
+
+        <button onclick="mostrarDetalleManual('${reporte.id}')">
+            📋
+        </button>
+    `);
+    }
+
+        map.on("click", function(e){
+
+        if (!modoAgregar) return;
+        modoAgregar = false;
+
+        Swal.fire({
+            title: "Nuevo Reporte",
+            html: `
+            <input id="nombre" class="swal2-input"
+            placeholder="problematica">
+            <input id="ubicacion" class="swal2-input"
+            placeholder="Ubicacion">
+            `,
+           showCancelButton: true,
+           confirmButtonText: "Agregar",
+           cancelButtonText: "Cancelar"
+
+           }).then((result) => {
+
+           if (!result.isConfirmed) return;
+
+        const nombre =
+            document.getElementById("nombre").value;
+
+        const ubicacion =
+            document.getElementById("ubicacion").value;
+
+
+        if (!nombre || !ubicacion) {
+             Swal.fire({
+                icon: "warning",
+                title: "Faltan datos",
+                text: "Escribe la problemática y la ubicación."
+            });
+
+            return;
+        }
+
+         const id = "punto_" + Date.now();
+
+         const nuevoPunto = L.circleMarker(
+            [e.latlng.lat, e.latlng.lng],
+            {
+                radius: 4,
+                color: "red",
+                fillColor: "red",
+                weight: 3,
+                fillOpacity: 0.4
+            }
+
+        ).addTo(map);
+
+        puntos[id] = nuevoPunto;
+
+        crearPopup(nuevoPunto, {
+        id: id,
+        nombre: nombre,
+        ubicacion: ubicacion
+    });
+
+        function crearPopup(punto, reporte) {
+        punto.bindPopup(`
+        <button onclick="
+
+        cambiarEstadoPunto(
+        puntos['${reporte.id}'],
+        '${reporte.id}',
+        'green')">
+        Atender
+
+       </button>
+       <button onclick="
+       cambiarEstadoPunto(
+       puntos['${reporte.id}'],
+       '${reporte.id}',
+       'yellow')">
+       Pendiente
+
+       </button>
+       <button onclick="
+       cambiarEstadoPunto(
+       puntos['${reporte.id}'],
+       '${reporte.id}',
+       'red')">
+       No Atendido
+
+       </button>
+       <button onclick="mostrarDetalleManual('${reporte.id}')">
+       📋
+       </button>
+    `);
+    }
+
+         let reportesManuales =
+            JSON.parse(
+                localStorage.getItem("reportesManuales")
+            ) || [];
+
+             reportesManuales.push({
+
+            id: id,
+            nombre: nombre,
+            ubicacion: ubicacion,
+            lat: e.latlng.lat,
+            lng: e.latlng.lng,
+            estado: "red",
+            fecha: new Date().toLocaleDateString("es-MX"),
+            hora: new Date().toLocaleTimeString("es-MX", {
+            hour12: false
+
+        })
+        });
+
+         localStorage.setItem(
+            "reportesManuales",
+            JSON.stringify(reportesManuales)
+        );
+
+         nuevoPunto.openPopup();
+
+
+        Swal.fire({
+            icon: "success",
+            title: "Reporte agregado",
+            text: "El reporte se guardó correctamente."
+        });
+
+     });
+
+    });
+
+    function cargarReportesManuales() {
+
+    let reportesManuales =
+        JSON.parse(localStorage.getItem("reportesManuales")) || [];
+
+    reportesManuales.forEach(reporte => {
+
+        const punto = L.circleMarker(
+            [reporte.lat, reporte.lng],
+            {
+                radius: 4,
+                color: reporte.estado,
+                fillColor: reporte.estado,
+                weight: 3,
+                fillOpacity: 0.4
+            }
+        ).addTo(map);
+
+        puntos[reporte.id] = punto;
+
+        crearPopup(punto, reporte);
+    });
+}
+
+    function actualizaTabla() {
+
+    const mostrarEliminar = (vistaActual === "green");
+
+    document.getElementById("encabezadoTabla").innerHTML = `
+    <th>ID</th>
+    <th>Problema</th>
+    <th>Ubicación</th>
+    <th>Estado</th>
+    ${mostrarEliminar ? "<th>Eliminar</th>" : ""}
+    `;
+
+    document.getElementById("map").style.display = "none";
+    document.getElementById("tablaAtendidos").style.display = "block";
+
+    let html = "";
+
+    reportes.forEach(reporte => {
+
+        const estado = localStorage.getItem("punto" + reporte.id);
+
+        if (estado === vistaActual) {
+
+            let textoEstado = "";
+            let colorTexto = "";
+
+            if (estado === "green") {
+                textoEstado = "Atendido";
+                colorTexto = "green";
+            }
+
+            if (estado === "red") {
+                textoEstado = "No Atendido";
+                colorTexto = "red";
+            }
+
+            if (estado === "yellow") {
+                textoEstado = "Pendiente";
+                colorTexto = "#d4a000";
+            }
+
+            html += `
+            <tr>
                 <td>${reporte.id}</td>
                 <td>${reporte.nombre}</td>
                 <td>${reporte.ubicacion}</td>
-                <td style="color:${colorTexto}">
-                ${textoEstado}
+                <td>${textoEstado}</td>
+                ${mostrarEliminar ? `
+                <td>
+                <button onclick="eliminarReporte('${reporte.id}')">
+                🗑️
+                </button>
                 </td>
-                </tr>
-                `;
-            }   
-            });
-
-                document.getElementById("contenidoTabla").innerHTML = html;
-
+                ` : ""}
+            </tr>`;
             }
+        });
+
+    const reportesManuales =
+        JSON.parse(localStorage.getItem("reportesManuales")) || [];
+
+    reportesManuales.forEach(reporte => {
+
+        if (reporte.estado === vistaActual) {
+
+            let textoEstado = "";
+
+            if (reporte.estado === "green")
+                textoEstado = "Atendido";
+
+            if (reporte.estado === "red")
+                textoEstado = "No Atendido";
+
+            if (reporte.estado === "yellow")
+                textoEstado = "Pendiente";
+
+            html += `
+            <tr>
+                <td>${reporte.id}</td>
+                <td>${reporte.nombre}</td>
+                <td>${reporte.ubicacion}</td>
+                <td>${textoEstado}</td>
+                ${mostrarEliminar ? `
+            <td>
+            <button onclick="eliminarReporte('${reporte.id}')">
+            Mandar al papoi 🗑️
+            </button>
+            </td>
+            ` : ""}
+        </tr>`;
+        }
+    });
+
+    document.getElementById("contenidoTabla").innerHTML = html;
+}
+
+        function eliminarReporte(id) {
+        Swal.fire({
+
+        title: "¿Eliminar reporte?",
+        text: "Esta acción no se puede deshacer",
+        icon: "Cuidado",
+        showCancelButton: true,
+        confirmButtonText: "Eliminar",
+        cancelButtonText: "Cancelar"
+
+        }).then((result) => {
+        if (!result.isConfirmed) return;
+        let reportesManuales =
+        JSON.parse(localStorage.getItem("reportesManuales")) || [];
+
+        reportesManuales =
+        reportesManuales.filter(r => r.id !== id);
+
+        localStorage.setItem(
+        "reportesManuales",
+        JSON.stringify(reportesManuales)
+    );
+       location.reload();
+    });
+    }
 
         function cargarEstado(punto, marcador) {
         const colorGuardado = localStorage.getItem(punto);
@@ -438,16 +929,42 @@
             }
         }
 
+        function mostrarDetalleManual(id) {
+
+    let reportesManuales =
+        JSON.parse(localStorage.getItem("reportesManuales")) || [];
+
+    const reporte = reportesManuales.find(r => r.id === id);
+
+    if (!reporte) return;
+
+    Swal.fire({
+        title: reporte.nombre,
+        text: reporte.ubicacion,
+        imageWidth: 400,
+        imageHeight: 200,
+        imageAlt: "Reporte"
+    });
+}
+
         function contarProblemas(color) {
             let contador = 0;
 
-            for (let i = 1; i <= 6; i++) {
+            for (let i = 1; i <= 1; i++) {
                 const estado = localStorage.getItem("punto" + i);
 
                 if (estado === color) {
                     contador++;
                 }
             }
+            const reportesManuales =
+            JSON.parse(localStorage.getItem("reportesManuales")) || [];
+            reportesManuales.forEach(reporte => {
+            if(reporte.estado === color){
+            contador++;
+        }
+
+        });
             return contador;
         }
 
@@ -461,395 +978,10 @@
             document.getElementById("badgePendientes").textContent =
             contarProblemas("yellow");
         }
+
         actualizarBurbujas();
 
-        const punto1 = L.circleMarker([19.4059, -99.0315], {
-            radius: 4,
-            fillColor: "red",
-            color: "red",
-            weight: 2,
-            fillOpacity: 0.4
-        }).addTo(map)
-        punto1.bindPopup(`
-        
-        <button onclick="atenderReporte1()">
-        Atender
-        </button>
-        <button onclick="ponerPendiente1()">
-        Pendiente
-        </button>
-        <button onclick="noatendido1()">
-        No Atendido
-        </button>
-        <button onclick="iconoalerta1()">
-        📋
-        </button>
-        `);
-
-        cargarEstado("punto1", punto1);
-
-        function iconoalerta1(){
-
-        const reporte = reportes.find(r => r.id === 1);
-
-            Swal.fire({
-            title: reporte.nombre,
-            text: reporte.ubicacion,
-            imageWidth: 400,
-            imageHeight: 200,
-            imageAlt: "Custom image"
-        });
-        }
-
-        function atenderReporte1(){
-            punto1.setStyle({
-                color: "green",
-                fillColor: "green"
-            });
-            guardarEstado("punto1", "green");
-        }
-
-        function ponerPendiente1(){
-            punto1.setStyle({
-                color: "yellow",
-                fillColor: "yellow"
-            });
-            guardarEstado("punto1", "yellow");
-        }
-
-        function noatendido1(){
-            punto1.setStyle({
-                color: "red",
-                fillColor: "red"
-            });
-            guardarEstado("punto1", "red");
-        }
-
-        const punto2 = L.circleMarker([19.3997, -99.0362], {
-            radius: 4,
-            fillcolor: "red",
-            color: "red",
-            weight: 2,
-            fillOpacity: 0.4
-        }).addTo(map)
-        punto2.bindPopup(`
-        
-        <button onclick="atenderReporte2()">
-        Atender
-        </button>
-        <button onclick="ponerPendiente2()">
-        Pendiente
-        </button>
-        <button onclick="noatendido2()">
-        No Atendido
-        </button>
-        <button onclick="iconoalerta2()">
-        📋
-        </button>
-        `);
-
-        cargarEstado("punto2", punto2);
-
-        function iconoalerta2(){
-
-        const reporte = reportes.find(r => r.id === 2);
-        
-            Swal.fire({
-            title: reporte.nombre,
-            text: reporte.ubicacion,
-            imageWidth: 400,
-            imageHeight: 200,
-            imageAlt: "Custom image"
-        });
-        }
-
-        function atenderReporte2(){
-            punto2.setStyle({
-                color: "green",
-                fillcolor: "green"
-            });
-
-            guardarEstado("punto2", "green");
-        }
-
-        function ponerPendiente2(){
-            punto2.setStyle({
-                color: "yellow",
-                fillcolor: "yellow"
-            });
-
-            guardarEstado("punto2", "yellow");
-        }
-
-        function noatendido2(){
-            punto2.setStyle({
-                color: "red",
-                fillcolor: "red"
-            });
-
-            guardarEstado("punto2", "red");
-        }
-
-        const punto3 = L.circleMarker([19.4103, -99.0138], {
-            radius: 4,
-            fillcolor: "red",
-            color: "red",
-            weight: 2,
-            fillOpacity: 0.4
-        }).addTo(map)
-        punto3.bindPopup(`
-
-        <button onclick="atenderReporte3()">
-        Atender
-        </button>
-        <button onclick="ponerPendiente3()">
-        Pendiente
-        </button>
-        <button onclick="noatendido3()">
-        No Atendido
-        </button>
-        <button onclick="iconoalerta3()">
-        📋
-        </button>
-        `);
-
-        cargarEstado("punto3", punto3);
-
-        function iconoalerta3(){
-
-        const reporte = reportes.find(r => r.id === 3);
-
-            Swal.fire({
-            title: reporte.nombre,
-            text: reporte.ubicacion,
-            imageWidth: 400,
-            imageHeight: 200,
-            imageAlt: "Custom image"
-        });
-        }
-
-        function atenderReporte3(){
-            punto3.setStyle({
-                color: "green",
-                fillcolor: "green"
-            });
-
-            guardarEstado("punto3", "green");
-        }
-
-        function ponerPendiente3(){
-            punto3.setStyle({
-                color: "yellow",
-                fillcolor: "yellow"
-            });
-
-            guardarEstado("punto3", "yellow");
-        }
-
-        function noatendido3(){
-            punto3.setStyle({
-                color: "red",
-                fillcolor: "red"
-            });
-
-            guardarEstado("punto3", "red");
-        }
-
-        const punto4 = L.circleMarker([19.4017, -99.0228], {
-            radius: 4,
-            fillcolor: "red",
-            color: "red",
-            weight: 2,
-            fillOpacity: 0.4
-        }).addTo(map)
-        punto4.bindPopup(`
-        
-        <button onclick="atenderReporte4()">
-        Atender
-        </button>
-        <button onclick="ponerPendiente4()">
-        Pendiente
-        </button>
-        <button onclick="noatendido4()">
-        No Atendido
-        </button>
-        <button onclick="iconoalerta4()">
-        📋
-        </button>
-        `);
-
-        cargarEstado("punto4", punto4);
-
-        function iconoalerta4(){
-
-        const reporte = reportes.find(r => r.id === 4);
-
-            Swal.fire({
-            title: reporte.nombre,
-            text: reporte.ubicacion,
-            imageWidth: 400,
-            imageHeight: 200,
-            imageAlt: "Custom image"
-        });
-        }
-
-        function atenderReporte4(){
-            punto4.setStyle({
-                color: "green",
-                fillcolor: "green"
-            });
-
-            guardarEstado("punto4", "green");
-        }
-
-        function ponerPendiente4(){
-            punto4.setStyle({
-                color: "yellow",
-                fillcolor: "yellow"
-            });
-
-            guardarEstado("punto4", "yellow");
-        }
-
-        function noatendido4(){
-            punto4.setStyle({
-                color: "red",
-                fillcolor: "red"
-            });
-
-            guardarEstado("punto4", "red");
-        }
-
-        const punto5 = L.circleMarker([19.4037, -99.0088], {
-            radius: 4,
-            fillcolor: "red",
-            color: "red",
-            weight: 2,
-            fillOpacity: 0.4
-        }).addTo(map)
-        punto5.bindPopup(`
-        
-        <button onclick="atenderReporte5()">
-        Atender
-        </button>
-        <button onclick="ponerPendiente5()">
-        Pendiente
-        </button>
-        <button onclick="noatendido5()">
-        No Atendido
-        </button>
-        <button onclick="iconoalerta5()">
-        📋
-        </button>
-        `);
-
-        cargarEstado("punto5", punto5);
-
-        function iconoalerta5(){
-
-        const reporte = reportes.find(r => r.id === 5);   
-
-            Swal.fire({
-            title: reporte.nombre,
-            text: reporte.ubicacion,
-            imageWidth: 400,
-            imageHeight: 200,
-            imageAlt: "Custom image"
-        });
-        }
-
-        function atenderReporte5(){
-            punto5.setStyle({
-                color: "green",
-                fillcolor: "green"
-            });
-
-            guardarEstado("punto5", "green");
-        }
-
-        function ponerPendiente5(){
-            punto5.setStyle({
-                color: "yellow",
-                fillcolor: "yellow"
-            });
-
-            guardarEstado("punto5", "yellow");
-        }
-
-        function noatendido5(){
-            punto5.setStyle({
-                color: "red",
-                fillcolor: "red"
-            });
-
-            guardarEstado("punto5", "red");
-        }
-
-        const punto6 = L.circleMarker([19.4120, -99.0230], {
-            radius: 4,
-            fillcolor: "red",
-            color: "red",
-            weight: 2,
-            fillOpacity: 0.4
-
-        }).addTo(map)
-        punto6.bindPopup(`
-        
-        <button onclick="atenderReporte6()">
-        Atender
-        </button>
-        <button onclick="ponerPendiente6()">
-        Pendiente
-        </button>
-        <button onclick="noatendido6()">
-        No Atendido
-        </button>
-        <button onclick="iconoalerta6()">
-        📋
-        </button>
-        `);
-
-        cargarEstado("punto6", punto6);
-
-        function iconoalerta6(){
-
-        const reporte = reportes.find(r => r.id === 6);
-
-            Swal.fire({
-            title: reporte.nombre,
-            text: reporte.ubicacion,
-            imageWidth: 400,
-            imageHeight: 200,
-            imageAlt: "Custom image"
-        });
-        }
-
-        function atenderReporte6(){
-            punto6.setStyle({
-                color: "green",
-                fillcolor: "green"
-            });
-
-            guardarEstado("punto6", "green");
-        }
-
-        function ponerPendiente6(){
-            punto6.setStyle({
-                color: "yellow",
-                fillcolor: "yellow"
-            });
-
-            guardarEstado("punto6", "yellow");
-        }
-
-        function noatendido6(){
-            punto6.setStyle({
-                color: "red",
-                fillcolor: "red"
-            });
-
-            guardarEstado("punto6", "red");
-        }
+        cargarReportesManuales();
 
         L.marker([19.40061, -99.01483])
             .addTo(map)
