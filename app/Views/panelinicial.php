@@ -104,7 +104,7 @@
   </style>
 </head>
 
-<body class="bg-smart-bg text-white h-screen flex flex-col font-sans overflow-hidden selection:bg-smart-red selection:text-white">
+<body class="bg-smart-bg text-white min-h-screen flex flex-col font-sans selection:bg-smart-red selection:text-white overflow-x-hidden">
 
   <?php
     // Comprobamos la sesión activa
@@ -124,7 +124,7 @@
     $urlReportes = base_url('/reportes');
   ?>
 
-  <header class="flex justify-between items-center w-full px-4 sm:px-6 md:px-8 h-16 bg-smart-bg/90 backdrop-blur-md border-b border-smart-border flex-shrink-0 z-50">
+  <header class="flex justify-between items-center w-full max-w-full px-4 sm:px-6 md:px-8 h-16 bg-smart-bg/90 backdrop-blur-md border-b border-smart-border flex-shrink-0 z-50 overflow-x-hidden">
     
     <div class="flex items-center gap-2 sm:gap-3">
       <!-- BOTÓN MENÚ HAMBURGUESA (MÓVIL) -->
@@ -140,15 +140,15 @@
           <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z"></path>
           <path d="M12 2v20"></path>
         </svg>
-        <div class="flex flex-col">
-          <span class="text-xs sm:text-sm font-extrabold tracking-wider uppercase text-white leading-none">PROYECTO SMART</span>
-          <span class="text-[9px] sm:text-[10px] text-smart-text-muted font-medium tracking-normal mt-0.5 uppercase">DEVELOPERS ANA AND AXEL</span>
+        <div class="flex flex-col min-w-0">
+          <span class="text-xs sm:text-sm font-extrabold tracking-wider uppercase text-white leading-none truncate">PROYECTO SMART</span>
+          <span class="text-[9px] sm:text-[10px] text-smart-text-muted font-medium tracking-normal mt-0.5 uppercase truncate">DEVELOPERS ANA AND AXEL</span>
         </div>
       </a>
     </div>
 
     <!-- ACCIÓN DE SESIÓN -->
-    <div class="flex items-center gap-2 sm:gap-3">
+    <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
       <?php if ($isLoggedIn): ?>
         <!-- BOTÓN CERRAR SESIÓN -->
         <a class="flex items-center gap-1.5 sm:gap-2 btn-smart-primary px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs font-bold shadow-sm uppercase" href="<?= base_url('/logout') ?>">
@@ -166,13 +166,13 @@
 
   </header>
 
-  <div class="flex flex-1 overflow-hidden relative w-full">
+  <div class="flex flex-1 relative w-full overflow-x-hidden">
 
     <!-- BACKDROP MÓVIL CON BLUR -->
     <div id="mobile-overlay" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-30 hidden md:hidden transition-opacity"></div>
 
     <!-- BARRA LATERAL (SIDEBAR) -->
-    <aside id="sidebar" class="absolute md:relative inset-y-0 left-0 w-64 bg-smart-bg border-r border-smart-border flex-shrink-0 flex flex-col justify-between p-4 z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out overflow-y-auto">
+    <aside id="sidebar" class="fixed md:relative inset-y-0 left-0 w-64 bg-smart-bg border-r border-smart-border flex-shrink-0 flex flex-col justify-between p-4 z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out overflow-y-auto">
       
       <!-- SECCIÓN SUPERIOR DE NAVEGACIÓN -->
       <div class="space-y-4">
@@ -232,11 +232,11 @@
     </aside>
 
     <!-- ÁREA DE CONTENIDO PRINCIPAL -->
-    <main class="flex-1 overflow-y-auto p-4 sm:p-6 md:p-8 relative bg-black flex flex-col">
+    <main class="flex-1 p-4 sm:p-6 md:p-8 relative bg-black flex flex-col justify-between overflow-x-hidden">
       
-      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-64 bg-smart-red/10 blur-[120px] pointer-events-none rounded-full"></div>
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-4xl h-64 bg-smart-red/10 blur-[120px] pointer-events-none rounded-full overflow-hidden"></div>
 
-      <div class="w-full max-w-6xl mx-auto relative z-10 space-y-6">
+      <div class="w-full max-w-6xl mx-auto relative z-10 space-y-6 mb-12">
         
         <!-- HEADER DE LA PÁGINA -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-2 border-b border-smart-border/50">
@@ -355,6 +355,29 @@
 
       </div>
 
+      <!-- PIE DE PÁGINA (FOOTER) -->
+      <footer class="w-full max-w-6xl mx-auto border-t border-smart-border pt-6 pb-2 text-xs text-smart-text-muted relative z-10">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+          
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-smart-red" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" x2="22" y1="12" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z"></path>
+              <path d="M12 2v20"></path>
+            </svg>
+            <span class="font-bold text-white uppercase tracking-wider">PROYECTO SMART</span>
+            <span class="text-smart-border">|</span>
+          </div>
+
+          <div class="flex items-center gap-4 text-[9px] uppercase">
+            <span class="text-smart-text-muted">DESARROLLADO POR <strong class="text-white">ANA</strong></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-smart-red"></span>
+          </div>
+
+        </div>
+      </footer>
+
     </main>
   </div>
 
@@ -369,13 +392,13 @@
           </div>
           <div>
             <h3 class="text-sm font-bold uppercase tracking-wider text-white">ACCESO RESTRINGIDO</h3>
-            <p class="text-[11px] text-smart-text-muted uppercase">AUTENTICACIÓN REQUERIDA</p>
+            <p class="text-[11px] text-smart-text-muted uppercase">SE REQUIERE AUTENTICACIÓN</p>
           </div>
         </div>
 
         <div class="p-6 text-center">
           <p class="text-sm text-gray-300 leading-relaxed uppercase">
-            ¡HOLA! INICIA SESIÓN PARA INGRESAR A LAS FUNCIONALIDADES Y MÓDULOS PROTEGIDOS DEL SISTEMA.
+            ¡HOLA! INICIA SESIÓN PARA INGRESAR A LAS FUNCIONALIDADES Y MÓDULOS DEL SISTEMA.
           </p>
         </div>
 

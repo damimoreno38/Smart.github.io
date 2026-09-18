@@ -171,12 +171,34 @@
     </div>
 
     <!-- ENLACE VOLVER AL LOGIN -->
-    <p class="text-center text-xs text-smart-text-muted uppercase">
-      <a href="<?= base_url('/login') ?>" class="text-white font-bold hover:underline uppercase inline-flex items-center gap-1">
-        <span class="material-symbols-outlined text-sm">arrow_back</span>
-        VOLVER A INICIAR SESIÓN
-      </a>
-    </p>
+<div class="flex justify-center pt-1">
+  <a href="<?= base_url('/panelinicial') ?>" class="inline-flex items-center gap-2 text-xs font-semibold text-smart-text-muted hover:text-[#c03c3c] transition-colors uppercase">
+    <span class="material-symbols-outlined text-base">arrow_back</span>
+    <span>SALIR</span>
+  </a>
+</div>
+    <!-- PIE DE PÁGINA (FOOTER) -->
+      <footer class="w-full max-w-6xl mx-auto border-t border-smart-border pt-6 pb-2 text-xs text-smart-text-muted relative z-10">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+          
+          <div class="flex items-center gap-2">
+            <svg class="w-5 h-5 text-smart-red" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="2" x2="22" y1="12" y2="12"></line>
+              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10z"></path>
+              <path d="M12 2v20"></path>
+            </svg>
+            <span class="font-bold text-white uppercase tracking-wider">PROYECTO SMART</span>
+            <span class="text-smart-border">|</span>
+          </div>
+
+          <div class="flex items-center gap-4 text-[8px] uppercase">
+            <span class="text-smart-text-muted">DESARROLLADO POR <strong class="text-white">ANA</strong></span>
+            <span class="w-1.5 h-1.5 rounded-full bg-smart-red"></span>
+          </div>
+
+        </div>
+      </footer>
 
   </div>
 
