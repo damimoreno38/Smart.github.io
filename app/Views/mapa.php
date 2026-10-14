@@ -1,993 +1,1495 @@
+<?php
+
+/* la wea de la configuracion de los roles*/ 
+
+$session = session();
+
+/*Leer el rol desde las claves que puede utilizar el sistema*/
+
+$rolSesion = $session->get('role');
+
+if ($rolSesion === null || $rolSesion === '') {
+    $rolSesion = $session->get('role_id');
+}
+
+if ($rolSesion === null || $rolSesion === '') {
+    $rolSesion = $session->get('rol');
+}
+
+/* Normalizar el valor para evitar diferencias entre "1" y 1.*/
+
+$rolNormalizado = strtolower(trim((string) ($rolSesion ?? '')));
+
+/*Ajusta estos valores a los que realmente utiliza tu aplicación*/
+
+$esAdmin = in_array(
+    $rolNormalizado,['1', 'admin', 'administrador'],
+    true
+);
+
+$esOperador = in_array(
+    $rolNormalizado, ['2', 'operador'],
+    true
+);
+
+$rol = is_numeric($rolNormalizado)? (int) $rolNormalizado
+    : 0;
+
+/* las meras urls que se ocupan */
+
+$urlMapa = site_url('mapa');
+$urlCrearReporte = site_url('mapa/crear');
+$urlMisReportes = site_url('mapa/mis-reportes');
+$urlGestion = site_url('mapa/gestion');
+$urlCambiarEstado = site_url('mapa/cambiar-estado');
+$urlEliminarReporte = site_url('mapa/eliminar');
+$urlReportes = site_url('reportes');
+$urlPanel = site_url('panelinicial');
+?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mapa StreetMap</title>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <title>Mapa StreetMap - SMART WEB</title>
+
+    <link rel="stylesheet"
+          href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css">
+
+    <link rel="stylesheet"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0">
+
     <style>
+        * {
+            box-sizing: border-box;
+        }
 
         body {
             margin: 0;
+            padding: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #161515 0%, #161515 100%) !important;
+            background: #000;
+            color: #fff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
         header {
-            background: linear-gradient(135deg, #161515 0%, #161515 100%);
-            color: white;
-            text-align: center;
-            padding: 15px 15px 5px 15px;
+            background: #000;
+            color: #fff;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #1a1a1a;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
-        header h1 {
-            margin: 0;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-            font-size: 24px;
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
         }
 
-        header button {
-            margin-top: 8px;
-            padding: 5px 12px;
+        .logo-icon {
+            color: #c03c3c;
+            font-size: 38px;
+        }
+
+        .logo-title {
+            color: #fff;
+            font-weight: 800;
+            font-size: 16px;
+            letter-spacing: .5px;
+            line-height: 1.1;
+        }
+
+        .logo-subtitle {
+            color: #888;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .5px;
+            margin-top: 3px;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            cursor: pointer;
+            font-family: inherit;
+        }
+
+        .header-actions button {
+            padding: 9px 14px;
             border: none;
             border-radius: 6px;
-            background-color: #807c79;
-            color: black;
-            cursor: pointer;
-            font-size: 12px;
+            background: #c03c3c;
+            color: #fff;
+            font-size: 13px;
             font-weight: 600;
-            transition: all 0.3s ease;
+            transition: .2s;
         }
 
-        header button:hover {
-            background-color: #bdb2b2;
+        .header-actions button:hover {
+            background: #a82e2e;
             transform: translateY(-1px);
+        }
+
+        .btn-desplegable {
+            display: none;
+            background: #333 !important;
         }
 
         .container {
             display: flex;
             padding: 20px;
-            gap: 15px;
+            gap: 20px;
+            flex: 1;
+            position: relative;
+            min-width: 0;
             align-items: flex-start;
         }
 
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .6);
+            backdrop-filter: blur(2px);
+            z-index: 9998;
+        }
+
+        .sidebar-overlay.activo {
+            display: block;
+        }
+
         .sidebar {
-            width: 170px;
-            background: transparent;
-            padding: 0;
-            box-shadow: none;
+            width: 220px;
+            flex-shrink: 0;
             display: flex;
             flex-direction: column;
-            box-sizing: border-box;
+            gap: 10px;
+            transition: transform .3s ease;
+            z-index: 9999;
         }
 
         .sidebar h3 {
-            text-align: left;
-            margin-top: 0;
-            margin-bottom: 20px;
-            color: white;
+            margin: 0 0 10px;
+            color: #fff;
             font-size: 14px;
             font-weight: 700;
-            letter-spacing: 0.5px;
+            letter-spacing: .5px;
             text-transform: uppercase;
-            padding-left: 2px;
         }
 
         .sidebar button {
             width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
+            padding: 12px 14px;
             border: none;
             border-radius: 10px;
-            color: black;
-            font-size: 15px;
+            color: #e8e5eb;
+            font-size: 14px;
             font-weight: 600;
-            cursor: pointer;
-            position: relative;
-            background-color: #776b6b;
-            transition: all 0.3s ease;
+            background: #111;
+            transition: .3s;
             text-align: left;
-            box-shadow: 0 4px 10px #776b6b(226, 211, 211, 0.92);
+            box-shadow: 0 4px 10px rgba(119, 107, 107, .2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .sidebar button:hover {
-            background-color: #d6c3c3;
+            background: #c03c3c;
             transform: translateY(-1px);
-            box-shadow: 0 6px 14px rgba(184, 172, 172, 0.3);
-        }
-
-        #map {
-            height: 650px;
-            flex: 1;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
-            overflow: hidden;
-        }
-
-        .leaflet-tile {
-            filter: brightness(1.4);
         }
 
         .badge {
-            position: absolute;
-            top: 50%;
-            right: 8px;
-            transform: translateY(-50%);
-            background: #151416;
-            color: white;
+            background: #333;
+            color: #fff;
             border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            line-height: 16px;
+            min-width: 20px;
+            height: 20px;
+            line-height: 20px;
             text-align: center;
-            font-size: 9px;
+            font-size: 10px;
             font-weight: bold;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            padding: 0 4px;
         }
 
-        .sidebar button:hover .badge {
-            background: #83828a;
+        #map {
+            height: calc(100vh - 120px);
+            min-height: 450px;
+            flex: 1;
+            min-width: 0;
+            border-radius: 16px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, .4);
+            overflow: hidden;
+            z-index: 1;
         }
 
-       
+        .leaflet-tile {
+            filter: brightness(1.1);
+        }
+
+        .leaflet-popup-content-wrapper,
+        .leaflet-popup-tip {
+            background: #222;
+            color: #fff;
+        }
+
+        .leaflet-popup-content {
+            overflow-wrap: anywhere;
+        }
+
         .leaflet-popup-content button {
-            padding: 4px 10px;
-            margin: 2px 0;
-            font-size: 11px;
+            padding: 6px 10px;
+            margin: 3px 2px;
+            font-size: 12px;
             border: none;
             border-radius: 6px;
-            background-color: #161616;
-            color: white;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .alerta-lateral {
-           margin-left: 190px !important;
-           margin-top: 80px !important;
+            background: #333;
+            color: #fff;
         }
 
         .leaflet-popup-content button:hover {
-            background-color: #534e4e;
+            background: #a33b3b;
         }
 
         #tablaAtendidos {
-           flex: 1;
-           background: #363636;
-           border-radius: 18px;
-           padding: 28px;
-           box-sizing: border-box;
-           color: #363636;
-           box-shadow: 0 12px 35px rgba(22, 22, 22, 0.2);
-           min-width: 0;
-        }
-        
-        .table-title {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          margin-bottom: 22px;
+            flex: 1;
+            min-width: 0;
+            background: #242323;
+            border-radius: 18px;
+            padding: 24px;
+            color: #fff;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, .3);
+            overflow-x: auto;
         }
 
-        .table-title h2 {
-          margin: 0;
-          color: #3a3838;
-          font-size: 24px;
-          font-weight: 700;
-          text-transform: uppercase;
+        .table-header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
         }
 
-        #tablaAtendidos table {
-          width: 100%;
-          border-collapse: collapse;
+        .table-header-container h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 700;
+            text-transform: uppercase;
         }
 
-        #tablaAtendidos th,
-        #tablaAtendidos td {
-          border: 1px solid #6f7572;
-          padding: 12px;
-          text-align: center;
-        }
-
-        #tablaAtendidos th {
-         background-color: #5e5959;
-         color: white;
-        }
-
-        #tablaAtendidos td:hover {
-         background-color: #141414;
-         color: white;
-         transition: background-color 0.2s ease;
-       }
-
-       #tablaAtendidos tbody td {
-         transition: background-color 0.2s ease, color 0.2s ease;
-        }
-
-       #tablaAtendidos tbody tr:hover td {
-         background-color: #3a3737;
-         color: white;
-        }
-
-        .contenedor-buscador{
-            marguin-bottom: 15xp;
+        .contenedor-buscador {
+            margin-bottom: 15px;
         }
 
         #buscadorTabla {
-            width: 300px;
+            width: 100%;
+            max-width: 380px;
             padding: 10px 15px;
-            border: none;
+            border: 1px solid #444;
+            background: #181818;
+            color: #fff;
             border-radius: 8px;
             outline: none;
             font-size: 14px;
         }
 
-        .swal2-popup{
-            background: #2b2b2b !important;
-            color: white !important;
+        #buscadorTabla:focus {
+            border-color: #c03c3c;
         }
 
-        .swal2-title,
-        .swal2-html-container{
-            color: white !important;
+        .table-wrapper {
+            width: 100%;
+            overflow-x: auto;
         }
 
-        .swal2-confirm{
-            background: #6b6b6b !important;
+        #tablaDetalles {
+            width: 100%;
+            border-collapse: collapse;
+            background: #1a1a1a;
         }
 
-        .swal2-cancel{
-            background: #444 !important;
+        #tablaDetalles th,
+        #tablaDetalles td {
+            border: 1px solid #3a3a3a;
+            padding: 12px;
+            text-align: center;
+            overflow-wrap: anywhere;
         }
 
-        .btn-pdf{
-        background: #5e5959;
-        color: white;
-        border: none;
-        padding: 10px 15px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 15px;
-        font-weight: bold;
-        transition: 0.5s;
-    }
-        .btn-pdf:hover{
-        background: #7a7474;
-        transform: translateY(-2px);
-    }
+        #tablaDetalles th {
+            background: #444040;
+            color: #fff;
+        }
 
+        #tablaDetalles tbody tr:hover td {
+            background: #333;
+        }
 
+        .btn-pdf {
+            background: #5e5959;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .btn-pdf:hover {
+            background: #777;
+        }
+
+        .btn-action {
+            background: #802e2e;
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .btn-action:hover {
+            background: #a33b3b;
+        }
+        
+        /* lo de el diseño de la responsividad en los dispositivos */
+
+        @media screen and (max-width: 768px) {
+            .btn-desplegable {
+                display: inline-block;
+            }
+
+            .container {
+                padding: 10px;
+                flex-direction: column;
+            }
+
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 260px;
+                height: 100vh;
+                background: #000;
+                padding: 20px;
+                box-shadow: 4px 0 15px rgba(0, 0, 0, .5);
+                transform: translateX(-100%);
+                overflow-y: auto;
+            }
+
+            .sidebar.abierto {
+                transform: translateX(0);
+            }
+
+            #map {
+                width: 100%;
+                height: 500px;
+                min-height: 350px;
+            }
+
+            #tablaAtendidos {
+                width: 100%;
+                padding: 15px;
+            }
+
+            #buscadorTabla {
+                max-width: 100%;
+            }
+
+            #tablaDetalles thead {
+                display: none;
+            }
+
+            #tablaDetalles,
+            #tablaDetalles tbody,
+            #tablaDetalles tr,
+            #tablaDetalles td {
+                display: block;
+                width: 100%;
+            }
+
+            #tablaDetalles tr {
+                margin-bottom: 15px;
+                background: #262626;
+                border-radius: 10px;
+                padding: 10px;
+                border: 1px solid #333;
+            }
+
+            #tablaDetalles td {
+                text-align: right;
+                padding-left: 45%;
+                position: relative;
+                border: none;
+                border-bottom: 1px solid #3a3a3a;
+                min-height: 40px;
+            }
+
+            #tablaDetalles td:last-child {
+                border-bottom: none;
+            }
+
+            #tablaDetalles td::before {
+                content: attr(data-label);
+                position: absolute;
+                left: 10px;
+                width: 40%;
+                font-weight: bold;
+                text-align: left;
+                color: #b0b0b0;
+            }
+        }
     </style>
 </head>
+
 <body>
 
-    <header>
-        <h1>SMART WEB</h1>
-        <button onclick="location.href='/panelinicial'">
+<header>
+    <div class="logo">
+        <span class="material-symbols-outlined logo-icon">language</span>
+
+        <div>
+            <div class="logo-title">PROYECTO SMART</div>
+            <div class="logo-subtitle">DEVELOPERS ANA AND AXEL</div>
+        </div>
+    </div>
+
+    <div class="header-actions">
+        <button class="btn-desplegable"
+                type="button"
+                onclick="toggleMenu()">
+            ☰ Opciones
+        </button>
+
+        <button type="button"
+                onclick="window.location.href = URL_PANEL">
             Regresar al Panel Inicial
         </button>
-    </header>
+    </div>
+</header>
 
-    <div class="container">
+<div class="sidebar-overlay"
+     id="sidebarOverlay"
+     onclick="toggleMenu()"></div>
 
-        <div class="sidebar">
-            <h3><center>Opciones</center></h3>
+<div class="container">
 
-            <button class="atendidos" onclick="mostrarAtendidos()">
-                Problemas Atendidos
+    <nav class="sidebar" id="sidebarMenu">
+        <h3>MENÚ</h3>
+
+        <?php if ($esAdmin): ?>
+            <button type="button" onclick="mostrarAtendidos()">
+                <span>Atendidos</span>
                 <span id="badgeAtendidos" class="badge">0</span>
             </button>
 
-            <button class="sin-atender" onclick="mostrarSinAtender()">
-                Problemas Sin Atender
+            <button type="button" onclick="mostrarSinAtender()">
+                <span>Sin atender</span>
                 <span id="badgeSinAtender" class="badge">0</span>
             </button>
 
-            <button class="pendientes" onclick="mostrarPendientes()">
-                Problemas Pendientes 
+            <button type="button" onclick="mostrarPendientes()">
+                <span>Pendientes</span>
                 <span id="badgePendientes" class="badge">0</span>
             </button>
+        <?php endif; ?>
 
-            <button class="pendientes" onclick="generarReporte()">
-                Agregar reporte
-            </button>
-
-            <button class="pendientes" onclick="mostrarReportes()">
-                Reportes
-            </button>
-
-            <button onclick="volverMapa()">
-                Volver al mapa
-            </button>
-        </div>
-
-        <div id="registro"></div>
-
-        <div id="map"></div>
-
-    <div id="tablaAtendidos" style="display:none; flex:1;">
-
-    <h2 style="color:white;">TABLA DE DETALLES</h2>
-
-    <button
-        id="btnDescargarPDF"
-        onclick="descargarPDF()"
-        class="btn-pdf"
-        style="display:none;">
-        📄 Descargar PDF
+        <button type="button" onclick="generarReporte()">
+            <span>Agregar reporte</span>
         </button>
-        traca
+        <?php if ($esAdmin): ?>
+        <button type="button" onclick="mostrarReportes()">
+            <span>Reportes</span>
+        </button>
+        <?php endif; ?>
 
-    <div class="contenedor-buscador">
-        <input
-             type="text"
-             id="buscadorTabla"
-             placeholder="Buscar por ID, problema, ubicación o estado..."
-            >
-        </div>
-        traca
+        <button type="button" onclick="volverMapa()">
+            <span>Volver al mapa</span>
+        </button>
 
-    <table id="tablaDetalles" style="width:100%; background:white; border-collapse:collapse;">
-    <thead>
-    <tr>
-        
-    <tr id="encabezadoTabla">
+    </nav>
 
-     <th>ID</th>
-     <th>Problema</th>
-     <th>Ubicación</th>
-     <th>Estado</th>
-     <th>Eliminar</th>
+    <div id="map"></div>
 
-     </tr>
-     </thead>
-     <tbody id="contenidoTabla">
+    <?php if ($esAdmin): ?>
 
-    </tbody>
-    </table>
-    </div>
+        <section id="tablaAtendidos" style="display:none;">
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <div class="table-header-container">
+                <h2 id="tituloTabla">Tabla de detalles</h2>
 
-    <script>
+                <button id="btnDescargarPDF"
+                        type="button"
+                        onclick="descargarPDF()"
+                        class="btn-pdf"
+                        style="display:none;">
+                    📄 Descargar PDF
+                </button>
+            </div>
 
-        const map = L.map('map').setView([19.40061, -99.01483], 14);
+            <div class="contenedor-buscador">
+                <input type="text"
+                       id="buscadorTabla"
+                       placeholder="Buscar por ID, problema, ubicación o estado..."
+                       autocomplete="off">
+            </div>
+
+            <div class="table-wrapper">
+                <table id="tablaDetalles">
+                    <thead>
+                        <tr id="encabezadoTabla">
+                            <th>ID</th>
+                            <th>Problema</th>
+                            <th>Ubicación</th>
+                            <th>Estado</th>
+                            <th>acciones</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="contenidoTabla"></tbody>
+                </table>
+            </div>
+        </section>
+    <?php endif; ?>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+'use strict';
+
+/* la configuracion */
+
+const URL_MAPA = <?= json_encode($urlMapa) ?>;
+const URL_CREAR_REPORTE = <?= json_encode($urlCrearReporte) ?>;
+const URL_MIS_REPORTES = <?= json_encode($urlMisReportes) ?>;
+const URL_GESTION = <?= json_encode($urlGestion) ?>;
+const URL_CAMBIAR_ESTADO = <?= json_encode($urlCambiarEstado) ?>;
+const URL_ELIMINAR_REPORTE = <?= json_encode($urlEliminarReporte) ?>;
+const URL_REPORTES = <?= json_encode($urlReportes) ?>;
+const URL_PANEL = <?= json_encode($urlPanel) ?>;
+
+const ROL_USUARIO = <?= json_encode($rol) ?>;
+const ES_ADMIN = <?= json_encode($esAdmin) ?>;
+
+/* cositas del mapa */
+
+const map = L.map('map').setView([19.40061, -99.01483], 14);
 
         L.tileLayer('https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png', {
-            maxZoom: 30,
+            maxZoom: 19,
             attribution: '&copy; OpenStreetMap &copy; CARTO'
         }).addTo(map);
 
-        let vistaActual = "";
+let vistaActual = '';
+let modoAgregar = false;
 
-        function guardarEstado(punto, color) {
-            localStorage.setItem(punto, color);
-            actualizarBurbujas();
+const puntos = Object.create(null);
 
-            if(vistaActual !== ""){
-            actualizaTabla();
+/* Utilidades varias */
 
-        }
-        }
+function obtenerReportes() {
+    try {
+        const datos = JSON.parse(
+            localStorage.getItem('reportesManuales') || '[]'
+        );
 
-        function volverMapa() {
-            document.getElementById("tablaAtendidos").style.display = "none";
-            document.getElementById("map").style.display = "block";
-            map.invalidateSize();
-        }
+        return Array.isArray(datos) ? datos : [];
+    } catch (error) {
+        console.error('Error al leer los reportes:', error);
+        return [];
+    }
+}
 
-        const buscador = document.getElementById("buscadorTabla");
-        buscador.addEventListener("keyup", function(){
+function guardarReportes(reportes) {
+    try {
+        localStorage.setItem('reportesManuales', JSON.stringify(reportes));
+        return true;
+    } catch (error) {
+        console.error('Error al guardar los reportes:', error);
 
-            let texto = this.value.toLowerCase();
-            let filas = document.querySelectorAll("#tablaDetalles tbody tr");
+        Swal.fire(
+            'Error',
+            'No se pudieron guardar los datos en el navegador. Comprueba el espacio disponible.',
+            'error'
+        );
 
-            filas.forEach(fila => {
-                let contenido = fila.textContent.toLowerCase();
-                if(contenido.includes(texto)){
-                    fila.style.display = "";
-                }else {
-                    fila.style.display = "none";
-                }
-            });
+        return false;
+    }
+}
+
+function escaparHTML(valor) {
+    return String(valor ?? '').replace(/[&<>"']/g, caracter => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+    })[caracter]);
+}
+
+function esVistaGestionDisponible() {
+    return ES_ADMIN &&
+        document.getElementById('tablaAtendidos') !== null;
+}
+
+function cerrarMenuMovil() {
+    if (window.innerWidth <= 768) {
+        document.getElementById('sidebarMenu').classList.remove('abierto');
+        document.getElementById('sidebarOverlay').classList.remove('activo');
+
+        setTimeout(() => map.invalidateSize(), 300);
+    }
+}
+
+function obtenerTextoEstado(estado) {
+    switch (estado) {
+        case 'green':
+            return 'Atendido';
+        case 'yellow':
+            return 'Pendiente';
+        case 'red':
+        default:
+            return 'No atendido';
+    }
+}
+
+function obtenerFechaHora() {
+    const ahora = new Date();
+
+    return {
+        fecha: ahora.toLocaleDateString('es-MX'),
+        hora: ahora.toLocaleTimeString('es-MX', {
+            hour12: false
         })
+    };
+}
 
-        function mostrarReportes() {
-        document.getElementById("map").style.display = "none";
-        document.getElementById("tablaAtendidos").style.display = "block";
-        document.getElementById("btnDescargarPDF").style.display = "block";
-        document.getElementById("encabezadoTabla").innerHTML = `
+/* el menu de los dispositivos responsivos */
+
+function toggleMenu() {
+    const sidebar = document.getElementById('sidebarMenu');
+    const overlay = document.getElementById('sidebarOverlay');
+
+    sidebar.classList.toggle('abierto');
+    overlay.classList.toggle('activo');
+
+    setTimeout(() => map.invalidateSize(), 300);
+}
+
+document.querySelectorAll('.sidebar button').forEach(boton => {
+    boton.addEventListener('click', cerrarMenuMovil);
+});
+
+/* esto es para volver al mapa */
+
+function volverMapa() {
+    const tabla = document.getElementById('tablaAtendidos');
+
+    if (tabla) {
+        tabla.style.display = 'none';
+    }
+
+    document.getElementById('map').style.display = 'block';
+
+    setTimeout(() => map.invalidateSize(), 100);
+}
+
+function prepararTabla(titulo, mostrarPDF = false) {
+    if (!esVistaGestionDisponible()) {
+        return false;
+    }
+
+    document.getElementById('tituloTabla').textContent = titulo;
+
+    document.getElementById('btnDescargarPDF').style.display =
+        mostrarPDF ? 'inline-block' : 'none';
+
+    document.getElementById('map').style.display = 'none';
+    document.getElementById('tablaAtendidos').style.display = 'block';
+
+    document.getElementById('buscadorTabla').value = '';
+
+    return true;
+}
+
+function mostrarAtendidos() {
+    if (!esVistaGestionDisponible()) return;
+
+    vistaActual = 'green';
+    prepararTabla('Reportes atendidos');
+    actualizaTabla();
+}
+
+function mostrarSinAtender() {
+    if (!esVistaGestionDisponible()) return;
+
+    vistaActual = 'red';
+    prepararTabla('Reportes sin atender');
+    actualizaTabla();
+}
+
+function mostrarPendientes() {
+    if (!esVistaGestionDisponible()) return;
+
+    vistaActual = 'yellow';
+    prepararTabla('Reportes pendientes');
+    actualizaTabla();
+}
+
+/* todo lo general que tiene que ver con los reoportes */
+
+function mostrarReportes() {
+    const tabla = document.getElementById('tablaAtendidos');
+
+    if (!tabla) {
+        Swal.fire({
+            icon: 'info',
+            title: 'Reportes',
+            text: 'Tu rol no tiene acceso a la tabla de gestión. Puedes consultar el mapa y agregar reportes.'
+        });
+        return;
+    }
+
+    vistaActual = '';
+
+    prepararTabla('Todos los reportes', true);
+
+    document.getElementById('encabezadoTabla').innerHTML = `
         <th>ID</th>
         <th>Problema</th>
-        <th>Ubicasion</th>
+        <th>Ubicación</th>
         <th>Estado</th>
         <th>Hora</th>
         <th>Fecha</th>
-        `;
+    `;
 
-        let html ="";
-        const reportesManuales =
-        JSON.parse(localStorage.getItem("reportesManuales")) || [];
+    const reportes = obtenerReportes();
+    let html = '';
 
-        reportesManuales.forEach(reporte=>{
+    reportes.forEach(reporte => {
+        const id = escaparHTML(reporte.id);
+        const nombre = escaparHTML(reporte.nombre);
+        const ubicacion = escaparHTML(reporte.ubicacion);
+        const estado = escaparHTML(obtenerTextoEstado(reporte.estado));
+        const hora = escaparHTML(reporte.hora || '-');
+        const fecha = escaparHTML(reporte.fecha || '-');
 
-            let textoEstado = "No atendido";
-
-            if(reporte.estado == "green"){
-                textoEstado = "Atendido";
-            }
-
-            if(reporte.estado == "yellow"){
-                textoEstado = "Pendiente"
-            }
-
-            html +=`
+        html += `
             <tr>
-            <td>${reporte.id}</td>
-            <td>${reporte.nombre}</td>
-            <td>${reporte.ubicacion}</td>
-            <td>${textoEstado}</td>
-            <td>${reporte.hora||"-"}</td>
-            <td>${reporte.fecha||"-"}</td>
-            </tr>`;
+                <td data-label="ID">${id}</td>
+                <td data-label="Problema">${nombre}</td>
+                <td data-label="Ubicación">${ubicacion}</td>
+                <td data-label="Estado">${estado}</td>
+                <td data-label="Hora">${hora}</td>
+                <td data-label="Fecha">${fecha}</td>
 
-        });
-        document.getElementById("contenidoTabla").innerHTML = html;
+            </td>    
+            </tr>
+        `;
+    });
+
+    const columnas = ES_ADMIN ? 7 : 6;
+
+    document.getElementById('contenidoTabla').innerHTML = html ||
+        `<tr><td colspan="${columnas}">No hay reportes registrados.</td></tr>`;
+
+    aplicarBusqueda();
+}
+
+/* lo del buscador de las tablaas */
+
+function aplicarBusqueda() {
+    const buscador = document.getElementById('buscadorTabla');
+
+    if (!buscador) return;
+
+    const texto = buscador.value.toLowerCase().trim();
+
+    document.querySelectorAll('#tablaDetalles tbody tr').forEach(fila => {
+        fila.style.display =
+            fila.textContent.toLowerCase().includes(texto) ? '' : 'none';
+    });
+}
+
+const buscador = document.getElementById('buscadorTabla');
+
+if (buscador) {
+    buscador.addEventListener('input', aplicarBusqueda);
+}
+
+/* aqui estan las weas del pdf */
+
+function descargarPDF() {
+    if (!esVistaGestionDisponible()) return;
+
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        Swal.fire('Error', 'No se pudo cargar la biblioteca PDF.', 'error');
+        return;
     }
 
-    function descargarPDF() {
-
     const { jsPDF } = window.jspdf;
-
     const doc = new jsPDF();
 
-    // Título
     doc.setFontSize(18);
     doc.setTextColor(50, 50, 50);
-
-    doc.text("SMART WEB", 105, 20, {
-        align: "center"
-    });
+    doc.text('SMART WEB', 105, 20, { align: 'center' });
 
     doc.setFontSize(14);
-
-    doc.text("Reporte de problemas", 105, 30, {
-        align: "center"
+    doc.text('Reporte de Problemas Registrados', 105, 30, {
+        align: 'center'
     });
 
-    // Obtener reportes
-    const reportesManuales =
-        JSON.parse(localStorage.getItem("reportesManuales")) || [];
+    const reportes = obtenerReportes();
 
-    // Convertir los datos para PDF
-    const datos = reportesManuales.map(reporte => {
+    const datos = reportes.map(reporte => [
+        String(reporte.id ?? ''),
+        String(reporte.nombre ?? ''),
+        String(reporte.ubicacion ?? ''),
+        obtenerTextoEstado(reporte.estado),
+        String(reporte.hora || '-'),
+        String(reporte.fecha || '-')
+    ]);
 
-        let estado = "No atendido";
-
-        if (reporte.estado === "green") {
-            estado = "Atendido";
-        }
-
-        if (reporte.estado === "yellow") {
-            estado = "Pendiente";
-        }
-
-        return [
-            reporte.id,
-            reporte.nombre,
-            reporte.ubicacion,
-            estado,
-            reporte.hora,
-            reporte.fecha
-        ];
-    });
-
-    // Crear tabla
     doc.autoTable({
-        head: [
-            ["ID", "Problema", "Ubicación", "Estado", "Hora", "Fecha" ]
-        ],
-
+        head: [['ID', 'Problema', 'Ubicación', 'Estado', 'Hora', 'Fecha']],
         body: datos,
-
         startY: 40,
-
-        theme: "grid",
-
+        theme: 'grid',
         headStyles: {
             fillColor: [94, 89, 89],
             textColor: 255,
-            fontStyle: "bold"
+            fontStyle: 'bold'
         },
-
         styles: {
-            fontSize: 10,
-            cellPadding: 4
+            fontSize: 9,
+            cellPadding: 3,
+            overflow: 'linebreak'
         },
-
-        alternateRowStyles: {
-            fillColor: [240, 240, 240]
+        margin: {
+            top: 15,
+            right: 14,
+            bottom: 20,
+            left: 14
         }
     });
 
-    // Fecha
-    const fecha = new Date().toLocaleDateString();
+    const fecha = new Date().toLocaleDateString('es-MX');
 
     doc.setFontSize(9);
 
-    doc.text(
-        "Fecha de generación: " + fecha,
-        14,
-        doc.lastAutoTable.finalY + 15
-    );
+    let posicion = doc.lastAutoTable.finalY + 15;
 
-    // Descargar
-    doc.save("Reporte_SMART_WEB.pdf");
+    if (posicion > doc.internal.pageSize.getHeight() - 15) {
+        doc.addPage();
+        posicion = 20;
+    }
+
+    doc.text('Fecha de generación: ' + fecha, 14, posicion);
+
+    doc.save('Reporte_SMART_WEB.pdf');
 }
 
+/* funciones para agregar los reportes */
 
-        const reportes = [
-            {
-                id: 1,
-                nombre: "Drenaje en mal estado",
-                ubicacion: "Alcalcerio y Quinta Avenida"
-            },
-        ];
+function generarReporte() {
+    modoAgregar = true;
 
-        function mostrarAtendidos() {
-
-    document.getElementById("btnDescargarPDF").style.display = "none";
-    vistaActual = "green";
-    actualizaTabla();
-}
-
-        function mostrarSinAtender() {
-
-    document.getElementById("btnDescargarPDF").style.display = "none";
-    vistaActual = "red";
-    actualizaTabla();
-}
-
-        function mostrarPendientes() {
-
-    document.getElementById("btnDescargarPDF").style.display = "none";
-    vistaActual = "yellow";
-    actualizaTabla();
-}
-
-        const puntos = {};
-
-        let modoAgregar = false;
-
-        function generarReporte(){
-            modoAgregar = true;
-
-            Swal.fire({
-                icon: "info",
-                title: "Agregar reporte",
-                text: "Haz clic en el mapa para seleccionar la ubicación."
-            });
-        }
-
-        function cambiarEstadoPunto(punto, id, color) {
-
-        if (!punto) return;
-
-    punto.setStyle({
-        color: color,
-        fillColor: color
+    Swal.fire({
+        icon: 'info',
+        title: 'Agregar reporte',
+        text: 'Haz clic en el mapa para seleccionar la ubicación exacta.',
+        confirmButtonText: 'Entendido'
     });
-    localStorage.setItem(id + "_estado", color);
+}
+/* estas son las canvan para comprimir los pixeles de las imagenes y no pesen tanto para el almacenamiento del sistema */
 
-    let reportesManuales =
-        JSON.parse(localStorage.getItem("reportesManuales")) || [];
-
-    const reporte = reportesManuales.find(r => r.id === id);
-    if (reporte) {
-        reporte.estado = color;
-
-        localStorage.setItem(
-            "reportesManuales",
-            JSON.stringify(reportesManuales)
-        );
-    }
-
-        actualizarBurbujas();
-    }
-
-    function crearPopup(punto, reporte) {
-    punto.bindPopup(`
-        
-
-        <button onclick="
-            cambiarEstadoPunto(
-            puntos['${reporte.id}'],
-            '${reporte.id}',
-            'green'
-            )
-        ">
-            Atender
-        </button>
-
-        <button onclick="
-            cambiarEstadoPunto(
-            puntos['${reporte.id}'],
-            '${reporte.id}',
-            'yellow'
-        )
-        ">
-            Pendiente
-        </button>
-
-        <button onclick="
-            cambiarEstadoPunto(
-            puntos['${reporte.id}'],
-            '${reporte.id}',
-            'red'
-        )
-        ">
-            No Atendido
-        </button>
-
-        <button onclick="mostrarDetalleManual('${reporte.id}')">
-            📋
-        </button>
-    `);
-    }
-
-        map.on("click", function(e){
-
-        if (!modoAgregar) return;
-        modoAgregar = false;
-
-        Swal.fire({
-            title: "Nuevo Reporte",
-            html: `
-            <input id="nombre" class="swal2-input"
-            placeholder="problematica">
-            <input id="ubicacion" class="swal2-input"
-            placeholder="Ubicacion">
-            `,
-           showCancelButton: true,
-           confirmButtonText: "Agregar",
-           cancelButtonText: "Cancelar"
-
-           }).then((result) => {
-
-           if (!result.isConfirmed) return;
-
-        const nombre =
-            document.getElementById("nombre").value;
-
-        const ubicacion =
-            document.getElementById("ubicacion").value;
-
-
-        if (!nombre || !ubicacion) {
-             Swal.fire({
-                icon: "warning",
-                title: "Faltan datos",
-                text: "Escribe la problemática y la ubicación."
-            });
-
+function comprimirImagen(file, maxWidth = 800, maxHeight = 800, quality = 0.7) {
+    return new Promise((resolve, reject) => {
+        if (!file) {
+            resolve(null);
             return;
         }
 
-         const id = "punto_" + Date.now();
+        if (!file.type || !file.type.startsWith('image/')) {
+            reject(new Error('El archivo seleccionado no es una imagen.'));
+            return;
+        }
 
-         const nuevoPunto = L.circleMarker(
-            [e.latlng.lat, e.latlng.lng],
-            {
-                radius: 4,
-                color: "red",
-                fillColor: "red",
-                weight: 3,
-                fillOpacity: 0.4
-            }
+        const reader = new FileReader();
 
-        ).addTo(map);
+        reader.onload = event => {
+            const img = new Image();
 
-        puntos[id] = nuevoPunto;
+            img.onload = () => {
+                let width = img.width;
+                let height = img.height;
 
-        crearPopup(nuevoPunto, {
-        id: id,
-        nombre: nombre,
-        ubicacion: ubicacion
-    });
+                if (!width || !height) {
+                    reject(new Error('La imagen no tiene dimensiones válidas.'));
+                    return;
+                }
 
-        function crearPopup(punto, reporte) {
-        punto.bindPopup(`
-        <button onclick="
+                if (width > maxWidth || height > maxHeight) {
+                    const escala = Math.min(
+                        maxWidth / width,
+                        maxHeight / height
+                    );
 
-        cambiarEstadoPunto(
-        puntos['${reporte.id}'],
-        '${reporte.id}',
-        'green')">
-        Atender
+                    width = Math.round(width * escala);
+                    height = Math.round(height * escala);
+                }
 
-       </button>
-       <button onclick="
-       cambiarEstadoPunto(
-       puntos['${reporte.id}'],
-       '${reporte.id}',
-       'yellow')">
-       Pendiente
+                const canvas = document.createElement('canvas');
 
-       </button>
-       <button onclick="
-       cambiarEstadoPunto(
-       puntos['${reporte.id}'],
-       '${reporte.id}',
-       'red')">
-       No Atendido
+                canvas.width = width;
+                canvas.height = height;
 
-       </button>
-       <button onclick="mostrarDetalleManual('${reporte.id}')">
-       📋
-       </button>
-    `);
-    }
+                const ctx = canvas.getContext('2d');
 
-         let reportesManuales =
-            JSON.parse(
-                localStorage.getItem("reportesManuales")
-            ) || [];
+                if (!ctx) {
+                    reject(new Error('No se pudo procesar la imagen.'));
+                    return;
+                }
 
-             reportesManuales.push({
+                ctx.drawImage(img, 0, 0, width, height);
 
-            id: id,
-            nombre: nombre,
-            ubicacion: ubicacion,
-            lat: e.latlng.lat,
-            lng: e.latlng.lng,
-            estado: "red",
-            fecha: new Date().toLocaleDateString("es-MX"),
-            hora: new Date().toLocaleTimeString("es-MX", {
-            hour12: false
+                resolve(canvas.toDataURL('image/jpeg', quality));
+            };
 
-        })
-        });
+            img.onerror = () => reject(
+                new Error('No se pudo cargar la imagen.')
+            );
 
-         localStorage.setItem(
-            "reportesManuales",
-            JSON.stringify(reportesManuales)
+            img.src = event.target.result;
+        };
+
+        reader.onerror = () => reject(
+            new Error('No se pudo leer el archivo.')
         );
 
-         nuevoPunto.openPopup();
-
-
-        Swal.fire({
-            icon: "success",
-            title: "Reporte agregado",
-            text: "El reporte se guardó correctamente."
-        });
-
-     });
-
-    });
-
-    function cargarReportesManuales() {
-
-    let reportesManuales =
-        JSON.parse(localStorage.getItem("reportesManuales")) || [];
-
-    reportesManuales.forEach(reporte => {
-
-        const punto = L.circleMarker(
-            [reporte.lat, reporte.lng],
-            {
-                radius: 4,
-                color: reporte.estado,
-                fillColor: reporte.estado,
-                weight: 3,
-                fillOpacity: 0.4
-            }
-        ).addTo(map);
-
-        puntos[reporte.id] = punto;
-
-        crearPopup(punto, reporte);
+        reader.readAsDataURL(file);
     });
 }
 
-    function actualizaTabla() {
+map.on('click', async function(e) {
+    if (!modoAgregar) return;
 
-    const mostrarEliminar = (vistaActual === "green");
+    modoAgregar = false;
 
-    document.getElementById("encabezadoTabla").innerHTML = `
-    <th>ID</th>
-    <th>Problema</th>
-    <th>Ubicación</th>
-    <th>Estado</th>
-    ${mostrarEliminar ? "<th>Eliminar</th>" : ""}
-    `;
+    const result = await Swal.fire({
+        title: 'Nuevo reporte',
+        html: `
+            <input id="nombre"
+                   class="swal2-input"
+                   placeholder="Problemática"
+                   maxlength="150">
 
-    document.getElementById("map").style.display = "none";
-    document.getElementById("tablaAtendidos").style.display = "block";
+            <input id="ubicacion"
+                   class="swal2-input"
+                   placeholder="Ubicación"
+                   maxlength="200">
 
-    let html = "";
+            <div style="margin-top:15px;text-align:left;">
+                <label style="font-size:13px;color:#ccc;">
+                    Adjuntar imagen (opcional):
+                </label>
 
-    reportes.forEach(reporte => {
+                <input type="file"
+                       id="imagenReporte"
+                       accept="image/*"
+                       class="swal2-file"
+                       style="width:100%;margin-top:5px;">
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Agregar',
+        cancelButtonText: 'Cancelar',
+        focusConfirm: false,
 
-        const estado = localStorage.getItem("punto" + reporte.id);
+        preConfirm: async () => {
+            const nombre = document.getElementById('nombre').value.trim();
+            const ubicacion = document.getElementById('ubicacion').value.trim();
+            const fileInput = document.getElementById('imagenReporte');
+            const file = fileInput.files[0];
 
-        if (estado === vistaActual) {
-
-            let textoEstado = "";
-            let colorTexto = "";
-
-            if (estado === "green") {
-                textoEstado = "Atendido";
-                colorTexto = "green";
+            if (!nombre || !ubicacion) {
+                Swal.showValidationMessage(
+                    'Escribe la problemática y la ubicación.'
+                );
+                return false;
             }
 
-            if (estado === "red") {
-                textoEstado = "No Atendido";
-                colorTexto = "red";
+            if (file && file.size > 10 * 1024 * 1024) {
+                Swal.showValidationMessage(
+                    'La imagen no debe superar los 10 MB.'
+                );
+                return false;
             }
 
-            if (estado === "yellow") {
-                textoEstado = "Pendiente";
-                colorTexto = "#d4a000";
+            try {
+                const imagen = await comprimirImagen(file);
+
+                return {
+                    nombre,
+                    ubicacion,
+                    imagen
+                };
+            } catch (error) {
+                Swal.showValidationMessage(
+                    error.message || 'No se pudo procesar la imagen.'
+                );
+                return false;
             }
-
-            html += `
-            <tr>
-                <td>${reporte.id}</td>
-                <td>${reporte.nombre}</td>
-                <td>${reporte.ubicacion}</td>
-                <td>${textoEstado}</td>
-                ${mostrarEliminar ? `
-                <td>
-                <button onclick="eliminarReporte('${reporte.id}')">
-                🗑️
-                </button>
-                </td>
-                ` : ""}
-            </tr>`;
-            }
-        });
-
-    const reportesManuales =
-        JSON.parse(localStorage.getItem("reportesManuales")) || [];
-
-    reportesManuales.forEach(reporte => {
-
-        if (reporte.estado === vistaActual) {
-
-            let textoEstado = "";
-
-            if (reporte.estado === "green")
-                textoEstado = "Atendido";
-
-            if (reporte.estado === "red")
-                textoEstado = "No Atendido";
-
-            if (reporte.estado === "yellow")
-                textoEstado = "Pendiente";
-
-            html += `
-            <tr>
-                <td>${reporte.id}</td>
-                <td>${reporte.nombre}</td>
-                <td>${reporte.ubicacion}</td>
-                <td>${textoEstado}</td>
-                ${mostrarEliminar ? `
-            <td>
-            <button onclick="eliminarReporte('${reporte.id}')">
-            Mandar al papoi 🗑️
-            </button>
-            </td>
-            ` : ""}
-        </tr>`;
         }
     });
 
-    document.getElementById("contenidoTabla").innerHTML = html;
-}
-
-        function eliminarReporte(id) {
-        Swal.fire({
-
-        title: "¿Eliminar reporte?",
-        text: "Esta acción no se puede deshacer",
-        icon: "Cuidado",
-        showCancelButton: true,
-        confirmButtonText: "Eliminar",
-        cancelButtonText: "Cancelar"
-
-        }).then((result) => {
-        if (!result.isConfirmed) return;
-        let reportesManuales =
-        JSON.parse(localStorage.getItem("reportesManuales")) || [];
-
-        reportesManuales =
-        reportesManuales.filter(r => r.id !== id);
-
-        localStorage.setItem(
-        "reportesManuales",
-        JSON.stringify(reportesManuales)
-    );
-       location.reload();
-    });
+    if (!result.isConfirmed || !result.value) {
+        return;
     }
 
-        function cargarEstado(punto, marcador) {
-        const colorGuardado = localStorage.getItem(punto);
+    const { nombre, ubicacion, imagen } = result.value;
+    const { fecha, hora } = obtenerFechaHora();
 
-            if (colorGuardado) {
-                marcador.setStyle({
-                    color: colorGuardado,
-                    fillColor: colorGuardado
-                });
-            }
-        }
+    const reporte = {
+        id: 'punto_' + Date.now() + '_' + Math.random().toString(36).slice(2, 7),
+        nombre,
+        ubicacion,
+        imagen,
+        lat: e.latlng.lat,
+        lng: e.latlng.lng,
+        estado: 'red',
+        fecha,
+        hora
+    };
 
-        function mostrarDetalleManual(id) {
+    const reportes = obtenerReportes();
+    reportes.push(reporte);
 
-    let reportesManuales =
-        JSON.parse(localStorage.getItem("reportesManuales")) || [];
+    if (!guardarReportes(reportes)) return;
 
-    const reporte = reportesManuales.find(r => r.id === id);
-
-    if (!reporte) return;
+    agregarPuntoAlMapa(reporte);
+    actualizarBurbujas();
 
     Swal.fire({
-        title: reporte.nombre,
-        text: reporte.ubicacion,
-        imageWidth: 400,
-        imageHeight: 200,
-        imageAlt: "Reporte"
+        icon: 'success',
+        title: 'Reporte agregado',
+        text: 'El reporte se guardó en este navegador.'
+    });
+});
+
+/* cosas de los puntos y sus popos */
+
+function agregarPuntoAlMapa(reporte) {
+    const lat = Number(reporte.lat);
+    const lng = Number(reporte.lng);
+
+    if (
+        !Number.isFinite(lat) ||
+        !Number.isFinite(lng) ||
+        lat < -90 ||
+        lat > 90 ||
+        lng < -180 ||
+        lng > 180
+    ) {
+        return;
+    }
+
+    if (puntos[String(reporte.id)]) {
+        map.removeLayer(puntos[String(reporte.id)]);
+        delete puntos[String(reporte.id)];
+    }
+
+    const coloresPermitidos = ['green', 'yellow', 'red'];
+    const color = coloresPermitidos.includes(reporte.estado)
+        ? reporte.estado
+        : 'red';
+
+    const punto = L.circleMarker([lat, lng], {
+        radius: 4,
+        color,
+        fillColor: color,
+        weight: 2,
+        fillOpacity: 0.8
+    }).addTo(map);
+
+    puntos[String(reporte.id)] = punto;
+
+    crearPopup(punto, reporte);
+}
+
+function crearPopup(punto, reporte) {
+    const contenedor = document.createElement('div');
+    contenedor.style.display = 'flex';
+    contenedor.style.flexWrap = 'row';
+    contenedor.style.gap = '5px';
+
+    if (ES_ADMIN) {
+        const btnAtender = document.createElement('button');
+        btnAtender.type = 'button';
+        btnAtender.textContent = 'Atender';
+        btnAtender.onclick = () => cambiarEstadoPunto(reporte.id, 'green');
+        contenedor.appendChild(btnAtender);
+
+        const btnPendiente = document.createElement('button');
+        btnPendiente.type = 'button';
+        btnPendiente.textContent = 'Pendiente';
+        btnPendiente.onclick = () => cambiarEstadoPunto(reporte.id, 'yellow');
+        contenedor.appendChild(btnPendiente);
+
+        const btnNoAtendido = document.createElement('button');
+        btnNoAtendido.type = 'button';
+        btnNoAtendido.textContent = 'No atendido';
+        btnNoAtendido.onclick = () => cambiarEstadoPunto(reporte.id, 'red');
+        contenedor.appendChild(btnNoAtendido);
+    }
+
+    const btnDetalle = document.createElement('button');
+    btnDetalle.type = 'button';
+    btnDetalle.textContent = 'Ver detalle';
+    btnDetalle.onclick = () => mostrarDetalleManual(reporte.id);
+    contenedor.appendChild(btnDetalle);
+
+    punto.bindPopup(contenedor, { maxWidth: 300 });
+}
+
+
+/* finciones para cambiar de color los puntitouuuuus */
+
+function cambiarEstadoPunto(id, color) {
+    if (!ES_ADMIN) {
+        Swal.fire(
+            'Acceso denegado',
+            'Tu rol no puede cambiar el estado de los reportes.',
+            'warning'
+        );
+        return;
+    }
+
+    if (!['green', 'yellow', 'red'].includes(color)) {
+        return;
+    }
+
+    const reportes = obtenerReportes();
+
+    const reporte = reportes.find(
+        r => String(r.id) === String(id)
+    );
+
+    if (!reporte) {
+        Swal.fire('Aviso', 'No se encontró el reporte.', 'info');
+        return;
+    }
+
+    reporte.estado = color;
+
+    if (!guardarReportes(reportes)) return;
+
+    if (puntos[String(id)]) {
+        puntos[String(id)].setStyle({
+            color,
+            fillColor: color
+        });
+
+        crearPopup(puntos[String(id)], reporte);
+    }
+
+    actualizarBurbujas();
+
+    const tabla = document.getElementById('tablaAtendidos');
+
+    if (tabla && tabla.style.display === 'block') {
+        if (vistaActual) {
+            actualizaTabla();
+        } else {
+            mostrarReportes();
+        }
+    }
+}
+
+/* funciones de los detalles de los reportess */
+
+function mostrarDetalleManual(id) {
+    const reporte = obtenerReportes().find(
+        r => String(r.id) === String(id)
+    );
+
+    if (!reporte) {
+        Swal.fire('Aviso', 'No se encontró el reporte.', 'info');
+        return;
+    }
+
+    const htmlImagen = reporte.imagen
+        ? `
+            <img
+                src="${escaparHTML(reporte.imagen)}"
+                alt="Imagen del reporte"
+                style="width:100%;max-height:250px;object-fit:contain;border-radius:8px;margin-top:10px;">
+        `
+        : '<p style="color:#888;font-style:italic;">Sin imagen adjunta</p>';
+
+    Swal.fire({
+        title: escaparHTML(reporte.nombre),
+        html: `
+            <p><strong>Ubicación:</strong> ${escaparHTML(reporte.ubicacion)}</p>
+            <p><strong>Estado:</strong> ${escaparHTML(obtenerTextoEstado(reporte.estado))}</p>
+            <p><strong>Fecha:</strong> ${escaparHTML(reporte.fecha || '-')}</p>
+            <p><strong>Hora:</strong> ${escaparHTML(reporte.hora || '-')}</p>
+            ${htmlImagen}
+        `,
+        icon: 'info'
     });
 }
 
-        function contarProblemas(color) {
-            let contador = 0;
+/* tabla por estado de problematica */
 
-            for (let i = 1; i <= 1; i++) {
-                const estado = localStorage.getItem("punto" + i);
+function actualizaTabla() {
+    if (!esVistaGestionDisponible()) return;
 
-                if (estado === color) {
-                    contador++;
-                }
-            }
-            const reportesManuales =
-            JSON.parse(localStorage.getItem("reportesManuales")) || [];
-            reportesManuales.forEach(reporte => {
-            if(reporte.estado === color){
-            contador++;
-        }
+    const mostrarEliminar = ES_ADMIN && vistaActual === 'green';
 
+    document.getElementById('map').style.display = 'none';
+
+    const tabla = document.getElementById('tablaAtendidos');
+    tabla.style.display = 'block';
+
+    document.getElementById('encabezadoTabla').innerHTML = `
+        <th>ID</th>
+        <th>Problema</th>
+        <th>Ubicación</th>
+        <th>Estado</th>
+        ${mostrarEliminar ? '<th>Acciones</th>' : ''}
+    `;
+
+    const reportes = obtenerReportes();
+    const tbody = document.getElementById('contenidoTabla');
+
+    tbody.innerHTML = '';
+
+    const filtrados = reportes.filter(
+        reporte => reporte.estado === vistaActual
+    );
+
+    if (filtrados.length === 0) {
+        const fila = document.createElement('tr');
+        const celda = document.createElement('td');
+
+        celda.colSpan = mostrarEliminar ? 5 : 4;
+        celda.textContent = 'No hay reportes en esta categoría.';
+
+        fila.appendChild(celda);
+        tbody.appendChild(fila);
+
+        aplicarBusqueda();
+        return;
+    }
+
+    filtrados.forEach(reporte => {
+        const fila = document.createElement('tr');
+
+        const valores = [
+            ['ID', reporte.id],
+            ['Problema', reporte.nombre],
+            ['Ubicación', reporte.ubicacion],
+            ['Estado', obtenerTextoEstado(reporte.estado)]
+        ];
+
+        valores.forEach(([etiqueta, valor]) => {
+            const celda = document.createElement('td');
+
+            celda.dataset.label = etiqueta;
+            celda.textContent = String(valor ?? '-');
+
+            fila.appendChild(celda);
         });
-            return contador;
+
+        if (mostrarEliminar) {
+            const celdaAcciones = document.createElement('td');
+            celdaAcciones.dataset.label = 'Acciones';
+
+            const boton = document.createElement('button');
+            boton.type = 'button';
+            boton.className = 'btn-action';
+            boton.textContent = '🗑️ Eliminar';
+
+            boton.addEventListener('click', function () {
+                eliminarReporte(reporte.id);
+            });
+
+            celdaAcciones.appendChild(boton);
+            fila.appendChild(celdaAcciones);
         }
 
-        function actualizarBurbujas() {
-            document.getElementById("badgeAtendidos").textContent =
-            contarProblemas("green");
+        tbody.appendChild(fila);
+    });
 
-            document.getElementById("badgeSinAtender").textContent =
-            contarProblemas("red");
+    aplicarBusqueda();
+}
 
-            document.getElementById("badgePendientes").textContent =
-            contarProblemas("yellow");
+/* funcion que permite eliminar reportes */
+
+async function eliminarReporte(id) {
+    if (!ES_ADMIN) {
+        Swal.fire(
+            'Acceso denegado',
+            'Solo el administrador puede eliminar reportes.',
+            'warning'
+        );
+        return;
+    }
+
+    const reportes = obtenerReportes();
+
+    const existe = reportes.some(
+        reporte => String(reporte.id) === String(id)
+    );
+
+    if (!existe) {
+        Swal.fire('Aviso', 'No se encontró el reporte.', 'info');
+        return;
+    }
+
+    const resultado = await Swal.fire({
+        title: '¿Eliminar reporte?',
+        text: 'Esta acción no se puede deshacer.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Eliminar',
+        cancelButtonText: 'Cancelar',
+        confirmButtonColor: '#a33b3b'
+    });
+
+    if (!resultado.isConfirmed) return;
+
+    const nuevosReportes = reportes.filter(
+        reporte => String(reporte.id) !== String(id)
+    );
+
+    if (!guardarReportes(nuevosReportes)) return;
+
+    const punto = puntos[String(id)];
+
+    if (punto) {
+        map.removeLayer(punto);
+        delete puntos[String(id)];
+    }
+
+    actualizarBurbujas();
+
+    const tabla = document.getElementById('tablaAtendidos');
+
+    if (tabla && tabla.style.display !== 'none') {
+        if (vistaActual) {
+            actualizaTabla();
+        } else {
+            mostrarReportes();
         }
+    }
 
-        actualizarBurbujas();
+    Swal.fire(
+        'Eliminado',
+        'El reporte se ha eliminado correctamente.',
+        'success'
+    );
+}
 
-        cargarReportesManuales();
+/*contadores de las burbujas*/
 
-        L.marker([19.40061, -99.01483])
-            .addTo(map)
-            .bindPopup('Nezayork')
-            .openPopup();
-    </script>
+function contarProblemas(color) {
+    return obtenerReportes().filter(
+        reporte => reporte.estado === color
+    ).length;
+}
+
+function actualizarBurbujas() {
+    if (!ES_ADMIN) return;
+
+    const atendidos = document.getElementById('badgeAtendidos');
+    const sinAtender = document.getElementById('badgeSinAtender');
+    const pendientes = document.getElementById('badgePendientes');
+
+    if (atendidos) {
+        atendidos.textContent = contarProblemas('green');
+    }
+
+    if (sinAtender) {
+        sinAtender.textContent = contarProblemas('red');
+    }
+
+    if (pendientes) {
+        pendientes.textContent = contarProblemas('yellow');
+    }
+}
+
+/* la inicializacion*/
+
+function cargarReportesManuales() {
+    obtenerReportes().forEach(reporte => {
+        agregarPuntoAlMapa(reporte);
+    });
+}
+
+window.addEventListener('load', function() {
+    cargarReportesManuales();
+    actualizarBurbujas();
+
+    L.marker([19.40061, -99.01483])
+        .addTo(map)
+        .bindPopup('<b>Nezahualcóyotl</b>');
+
+    setTimeout(() => map.invalidateSize(), 200);
+});
+
+
+/*renderizado de las pestaña de los apartados*/
+
+window.addEventListener('storage', function(evento) {
+    if (evento.key !== 'reportesManuales') return;
+
+    Object.keys(puntos).forEach(id => {
+        map.removeLayer(puntos[id]);
+        delete puntos[id];
+    });
+
+    cargarReportesManuales();
+    actualizarBurbujas();
+
+    const tabla = document.getElementById('tablaAtendidos');
+
+    if (tabla && tabla.style.display === 'block') {
+        if (vistaActual) {
+            actualizaTabla();
+        } else {
+            mostrarReportes();
+        }
+    }
+});
+</script>
 
 </body>
 </html>

@@ -15,8 +15,7 @@ class Mapa extends BaseController
     return view('errors/error_mapa');
    }
 
-    public function ubicacion()
-    {
+    public function ubicacion(){
         // * DEVUELVE DATOS DE UBICACIÓN EN FORMATO JSON
         return $this->response->setJSON([
             'latitud'  => 19.4326,

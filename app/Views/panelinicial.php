@@ -260,7 +260,7 @@
           <div class="px-4 sm:px-5 py-3 border-b border-smart-border/60 bg-smart-input-bg/50 flex items-center justify-between gap-2">
             <div class="flex items-center gap-2 min-w-0">
               <span class="w-2.5 h-2.5 rounded-full bg-smart-red flex-shrink-0 animate-pulse"></span>
-              <span class="text-xs font-bold uppercase tracking-wider text-white truncate">VISUALIZACIÓN 3D </span>
+              <span class="text-xs font-bold uppercase tracking-wider text-white truncate">VISUALIZACIÓN 3D</span>
             </div>
             <span class="text-[10px] sm:text-[11px] text-smart-text-muted bg-smart-bg px-2 sm:px-2.5 py-1 rounded-md border border-smart-border flex-shrink-0 uppercase">NEZAYORK</span>
           </div>
@@ -268,22 +268,40 @@
           <!-- CONTENEDOR VISUAL DEL MODELO 3D -->
           <div class="relative w-full h-[350px] sm:h-[450px] bg-[#121212] flex items-center justify-center overflow-hidden">
             
+            <!-- MODELO 1 (Slide 0) -->
             <model-viewer 
+              id="model-slide-0"
               src="<?= base_url('modelo2.glb') ?>" 
-              alt="VISUALIZACIÓN DEL MODELO 3D SMART" 
+              alt="VISUALIZACIÓN DEL MODELO 3D SMART 1" 
               auto-rotate 
               camera-controls 
               shadow-intensity="1"
               exposure="1"
               touch-action="pan-y"
-              style="width: 100%; height: 100%; background-color: #121212;"
-              class="z-10">
+              style="width: 100%; height: 100%; background-color: #121212; position: absolute; inset: 0;"
+              class="z-10 model-slide">
               
-              <!-- Cartel de carga si tarda en procesar -->
               <div slot="poster" class="flex items-center justify-center h-full text-smart-text-muted text-xs uppercase font-bold tracking-wider">
                 CARGANDO MODELO 3D...
               </div>
+            </model-viewer>
 
+            <!-- MODELO 2 (Slide 1) -->
+            <model-viewer 
+              id="model-slide-1"
+              src="<?= base_url('modelo3.glb') ?>" 
+              alt="VISUALIZACIÓN DEL MODELO 3D SMART 2" 
+              auto-rotate 
+              camera-controls 
+              shadow-intensity="1"
+              exposure="1"
+              touch-action="pan-y"
+              style="width: 100%; height: 100%; background-color: #121212; position: absolute; inset: 0; display: none;"
+              class="z-10 model-slide">
+              
+              <div slot="poster" class="flex items-center justify-center h-full text-smart-text-muted text-xs uppercase font-bold tracking-wider">
+                CARGANDO MODELO 3D...
+              </div>
             </model-viewer>
 
             <!-- Degradado para resaltar la interfaz -->
@@ -298,13 +316,12 @@
             <span class="material-symbols-outlined text-lg sm:text-xl">chevron_right</span>
           </button>
 
-          <!-- FOOTER SOBRE EL MODELO -->
+          <!-- FOOTER SOBRE EL MODELO (Indicadores dinámicos actualizados) -->
           <div class="absolute bottom-3 sm:bottom-4 left-0 right-0 px-4 sm:px-6 flex items-center justify-between z-30 pointer-events-none">
             <p class="text-xs font-semibold text-white/90 hidden sm:block uppercase">CIUDAD INTELIGENTE</p>
-            <div class="flex items-center gap-1.5 mx-auto sm:mx-0">
-              <span class="w-5 sm:w-6 h-1.5 rounded-full bg-smart-red"></span>
-              <span class="w-1.5 h-1.5 rounded-full bg-white/40"></span>
-              <span class="w-1.5 h-1.5 rounded-full bg-white/40"></span>
+            <div id="carousel-dots" class="flex items-center gap-1.5 mx-auto sm:mx-0">
+              <span class="w-5 sm:w-6 h-1.5 rounded-full bg-smart-red transition-all duration-300" data-index="0"></span>
+              <span class="w-1.5 h-1.5 rounded-full bg-white/40 transition-all duration-300" data-index="1"></span>
             </div>
           </div>
 
@@ -425,7 +442,7 @@
     </script>
   <?php endif; ?>
 
-  <!-- JS DE NAVEGACIÓN Y MENÚ MÓVIL -->
+  <!-- JS DE NAVEGACIÓN, MENÚ MÓVIL Y CARRUSEL 3D -->
   <script>
     const mobileMenuBtn = document.getElementById('mobile-menu-btn');
     const sidebar = document.getElementById('sidebar');
@@ -450,6 +467,43 @@
       if (window.innerWidth >= 768) {
         mobileOverlay.classList.add('hidden');
       }
+    });
+
+    // --- LÓGICA DEL CARRUSEL DE MODELOS 3D ---
+    const slides = document.querySelectorAll('.model-slide');
+    const dots = document.querySelectorAll('#carousel-dots > span');
+    const prevBtn = document.getElementById('prevSlide');
+    const nextBtn = document.getElementById('nextSlide');
+    let currentIndex = 0;
+
+    function updateCarousel(index) {
+      slides.forEach((slide, i) => {
+        if (i === index) {
+          slide.style.display = 'block';
+        } else {
+          slide.style.display = 'none';
+        }
+      });
+
+      dots.forEach((dot, i) => {
+        if (i === index) {
+          dot.classList.remove('w-1.5', 'bg-white/40');
+          dot.classList.add('w-5', 'sm:w-6', 'bg-smart-red');
+        } else {
+          dot.classList.remove('w-5', 'sm:w-6', 'bg-smart-red');
+          dot.classList.add('w-1.5', 'bg-white/40');
+        }
+      });
+    }
+
+    prevBtn.addEventListener('click', () => {
+      currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+      updateCarousel(currentIndex);
+    });
+
+    nextBtn.addEventListener('click', () => {
+      currentIndex = (currentIndex + 1) % slides.length;
+      updateCarousel(currentIndex);
     });
   </script>
 
